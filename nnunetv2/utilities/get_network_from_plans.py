@@ -31,7 +31,8 @@ def get_network_from_plans(arch_class_name, arch_kwargs, arch_kwargs_req_import,
     if deep_supervision is not None and 'deep_supervision' not in arch_kwargs.keys():
         arch_kwargs['deep_supervision'] = deep_supervision
 
-    architecture_kwargs['decoder_type'] = decoder_type
+    if network_class != "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet":
+        architecture_kwargs['decoder_type'] = decoder_type
     
     network = nw_class(
         input_channels=input_channels,
