@@ -1105,7 +1105,7 @@ class nnUNetTrainer(object):
             self.initialize()
 
         if isinstance(filename_or_checkpoint, str):
-            torch.serialization.add_safe_globals([np._core.multiarray.scalar, np.dtype, np.dtypes.Float32DType])
+            torch.serialization.add_safe_globals([np.core.multiarray.scalar, np.dtype, np.dtypes.Float32DType])
 
             checkpoint = torch.load(filename_or_checkpoint, map_location=self.device)
         # if state dict comes from nn.DataParallel but we use non-parallel model here then the state dict keys do not
