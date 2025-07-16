@@ -144,9 +144,9 @@ class nnUNetTrainerMRCT(nnUNetTrainer):
 
         with autocast(self.device.type, enabled=True) if self.device.type == 'cuda' else dummy_context():
             output = self.network(data)
-            torch.save(data, "data")
-            torch.save(output, "output")
-            torch.save(target, "target")
+            # torch.save(data, "data")
+            # torch.save(output, "output")
+            # torch.save(target, "target")
 
             del data
             mse_loss = myMSE()
