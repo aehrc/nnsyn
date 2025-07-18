@@ -226,6 +226,9 @@ class nnUNetTrainer(object):
 
             self.loss = self._build_loss()
             self.was_initialized = True
+
+            # slurm auto-requeue
+            self.init_call_resume()
         else:
             raise RuntimeError("You have called self.initialize even though the trainer was already initialized. "
                                "That should not happen.")
@@ -1307,3 +1310,33 @@ class nnUNetTrainer(object):
             self.on_epoch_end()
 
         self.on_train_end()
+
+
+    def init_call_resume(self):
+        import signal
+        from subprocess import call
+
+        def call_resume():
+
+            job_id = os.environ['SLURM_JOB_ID']
+            cmd = f'scontrol requeue {job_id}'
+            print(f'\nRequeing job {job_id}...')
+            result = call(cmd, shell=True)
+            if result == 0:
+                print(f'Requeued job {job_id}.')
+            else:
+                print('Requeue failed...')
+            os._exit(0)
+
+        def sig_handler(signum, frame):
+            print(f'Caught signal: {signum}')
+            call_resume()
+
+        def term_handler(signum, frame):
+            print(f'Caught signal: {signum}')
+            print('Signal sigterm. ')
+        # start
+        print('Setting signal to automatically requeue the job before timeout.')
+        signal.signal(signal.SIGUSR1, sig_handler)
+        signal.signal(signal.SIGTERM, term_handler)
+        print('Start listening: waiting for signal')

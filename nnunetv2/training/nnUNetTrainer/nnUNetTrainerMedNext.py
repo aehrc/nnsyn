@@ -28,7 +28,8 @@ class nnUNetTrainerMedNext(nnUNetTrainerMRCT):
         self.plans_manager.plans['configurations'][self.configuration_name]['patch_size'] = new_patch_size
 
         self.grad_scaler = None
-        self.initial_lr = 1e-3
+        self.initial_lr = 1e-4 # bx: reduce learning rate to encourage converging
+        # self.initial_lr = 1e-3
         self.weight_decay = 0.01
 
     ## add loss for future modification 
@@ -36,51 +37,51 @@ class nnUNetTrainerMedNext(nnUNetTrainerMRCT):
         loss = myMSE()
         return loss
 
-    # def train_step(self, batch: dict) -> dict:
-    #     data = batch['data']
-    #     target = batch['target']
+    def train_step(self, batch: dict) -> dict:
+        data = batch['data']
+        target = batch['target']
 
-    #     data = data.to(self.device, non_blocking=True)
-    #     if isinstance(target, list):
-    #         target = [i.to(self.device, non_blocking=True) for i in target]
-    #     else:
-    #         target = target.to(self.device, non_blocking=True)
+        data = data.to(self.device, non_blocking=True)
+        if isinstance(target, list):
+            target = [i.to(self.device, non_blocking=True) for i in target]
+        else:
+            target = target.to(self.device, non_blocking=True)
 
-    #     self.optimizer.zero_grad(set_to_none=True)
+        self.optimizer.zero_grad(set_to_none=True)
         
-    #     output = self.network(data)
-    #     l = self.loss(output, target)
-    #     l.backward()
-    #     torch.nn.utils.clip_grad_norm_(self.network.parameters(), 12)
-    #     self.optimizer.step()
+        output = self.network(data)
+        l = self.loss(output, target)
+        l.backward()
+        torch.nn.utils.clip_grad_norm_(self.network.parameters(), 12)
+        self.optimizer.step()
         
-    #     return {'loss': l.detach().cpu().numpy()}
+        return {'loss': l.detach().cpu().numpy()}
     
 
-    # def validation_step(self, batch: dict) -> dict:
-    #     data = batch['data']
-    #     target = batch['target']
+    def validation_step(self, batch: dict) -> dict:
+        data = batch['data']
+        target = batch['target']
 
-    #     data = data.to(self.device, non_blocking=True)
-    #     if isinstance(target, list):
-    #         target = [i.to(self.device, non_blocking=True) for i in target]
-    #     else:
-    #         target = target.to(self.device, non_blocking=True)
+        data = data.to(self.device, non_blocking=True)
+        if isinstance(target, list):
+            target = [i.to(self.device, non_blocking=True) for i in target]
+        else:
+            target = target.to(self.device, non_blocking=True)
 
-    #     self.optimizer.zero_grad(set_to_none=True)
+        self.optimizer.zero_grad(set_to_none=True)
 
-    #     # Autocast is a little bitch.
-    #     # If the device_type is 'cpu' then it's slow as heck and needs to be disabled.
-    #     # If the device_type is 'mps' then it will complain that mps is not implemented, even if enabled=False is set. Whyyyyyyy. (this is why we don't make use of enabled=False)
-    #     # So autocast will only be active if we have a cuda device.
-    #     output = self.network(data)
-    #     del data
-    #     l = self.loss(output, target)
+        # Autocast is a little bitch.
+        # If the device_type is 'cpu' then it's slow as heck and needs to be disabled.
+        # If the device_type is 'mps' then it will complain that mps is not implemented, even if enabled=False is set. Whyyyyyyy. (this is why we don't make use of enabled=False)
+        # So autocast will only be active if we have a cuda device.
+        output = self.network(data)
+        del data
+        l = self.loss(output, target)
 
-    #     # the following is needed for online evaluation. Fake dice (green line)
-    #     axes = [0] + list(range(2, output.ndim))
+        # the following is needed for online evaluation. Fake dice (green line)
+        axes = [0] + list(range(2, output.ndim))
 
-    #     return {'loss': l.detach().cpu().numpy(), 'tp_hard': 0, 'fp_hard': 0, 'fn_hard': 0}
+        return {'loss': l.detach().cpu().numpy(), 'tp_hard': 0, 'fp_hard': 0, 'fn_hard': 0}
     
     def configure_optimizers(self):
 
@@ -95,6 +96,25 @@ class nnUNetTrainerMedNext(nnUNetTrainerMRCT):
     def set_deep_supervision_enabled(self, enabled: bool):
         pass
 
+
+class nnUNetTrainerV2_MedNeXt_L_kernel3(nnUNetTrainerMedNext):
+    """
+    Residual Encoder + UMmaba Bottleneck + Residual Decoder + Skip Connections
+    """
+    @staticmethod
+    def build_network_architecture(architecture_class_name: str,
+                                   arch_init_kwargs: dict,
+                                   arch_init_kwargs_req_import: Union[List[str], Tuple[str, ...]],
+                                   num_input_channels: int,
+                                   num_output_channels: int,
+                                   enable_deep_supervision: bool = True,
+                                   decoder_type:str = "standard") -> nn.Module:
+
+        # label_manager = plans_manager.get_label_manager(dataset_json)
+
+        model = create_mednextv1_large(num_input_channels, 1, 3, False)
+
+        return model
 
 class nnUNetTrainerV2_MedNeXt_L_kernel5(nnUNetTrainerMedNext):
     """
