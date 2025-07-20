@@ -1330,7 +1330,11 @@ class nnUNetTrainer(object):
 
         def sig_handler(signum, frame):
             print(f'Caught signal: {signum}')
-            call_resume()
+            ### specify ending condition here: 
+            if self.current_epoch < self.num_epochs:
+                call_resume()
+            else:
+                print('Reaching the No. epoch, terminates')
 
         def term_handler(signum, frame):
             print(f'Caught signal: {signum}')
