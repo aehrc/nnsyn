@@ -1,0 +1,9 @@
+{
+    "dataset_id": 204,
+    "dataset_data_name": "synthrad2025_task1_MR_resXL",
+    "dataset_target_name": "synthrad2025_task1_CT_resXL",
+    "data_root": "/datasets/work/hb-synthrad2023/source/synthrad2025_data_v2/synthRAD2025_Task1_Train/Task1",
+    "preprocessing_CT": "CT",
+    "preprocessing_MRI": "MR",
+    "preprocessing_mask": "no mask"
+}
