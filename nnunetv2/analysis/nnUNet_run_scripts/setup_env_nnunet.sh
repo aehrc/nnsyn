@@ -23,5 +23,7 @@ aim server --host virga.hpc.csiro.au --port 53800 --repo /datasets/work/hb-synth
 aim up --host 127.0.0.1 --port 43800 --repo /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/output/runs --workers=4
 # in the browser, go to http://localhost:43800/
 
-# changes to previous version
-# ImageMetrics to ImageMetricsCompute
+
+conda create --prefix /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/envs/simple_elastix python==3.13
+source activate /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/envs/simple_elastix
+pip install SimpleITK-SimpleElastix==2.5.0.dev49
