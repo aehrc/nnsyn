@@ -1,0 +1,9 @@
+{
+    "dataset_id": 296,
+    "dataset_data_name": "synthrad2025_task1_MR_HN_zscore_synthrad_masked",
+    "dataset_target_name": "synthrad2025_task1_CT_HN_zscore_synthrad_masked",
+    "data_root": "/datasets/work/hb-synthrad2023/source/synthrad2025_data_v2/synthRAD2025_Task1_Train/Task1/HN",
+    "preprocessing_CT": "CT_zscore_synthrad",
+    "preprocessing_MRI": "MR",
+    "preprocessing_mask": "masked"
+}

@@ -66,9 +66,39 @@ class CTNormalization(ImageNormalization):
         image /= max(std_intensity, 1e-8)
         return image
     
+class CTNormalizationNoClipping(ImageNormalization):
+    leaves_pixels_outside_mask_at_zero_if_use_mask_for_norm_is_true = False
+
+    def run(self, image: np.ndarray, seg: np.ndarray = None) -> np.ndarray:
+        assert self.intensityproperties is not None, "CTNormalization requires intensity properties"
+        mean_intensity = self.intensityproperties['mean']
+        std_intensity = self.intensityproperties['std']
+
+        image = image.astype(self.target_dtype, copy=False)
+        # np.clip(image, lower_bound, upper_bound, out=image)
+        image -= mean_intensity
+        image /= max(std_intensity, 1e-8)
+        return image
+    
+class CTNormalizationClippingSynthrad2025(ImageNormalization):
+    leaves_pixels_outside_mask_at_zero_if_use_mask_for_norm_is_true = False
+
+    def run(self, image: np.ndarray, seg: np.ndarray = None) -> np.ndarray:
+        _min = -1024
+        _max = 3000
+        assert self.intensityproperties is not None, "CTNormalization requires intensity properties"
+        mean_intensity = self.intensityproperties['mean']
+        std_intensity = self.intensityproperties['std']
+
+        image = image.astype(self.target_dtype, copy=False)
+        np.clip(image, _min, _max, out=image)
+        image -= mean_intensity
+        image /= max(std_intensity, 1e-8)
+        return image
+    
 class CTtanh(ImageNormalization):
-    _min = -1000
-    _max = 2000
+    _min = -1024
+    _max = 3000
     def run(self, image: np.ndarray, seg: np.ndarray = None) -> np.ndarray:
         image = image.astype(self.target_dtype, copy=False)
         np.clip(image, self._min, self._max, out=image)

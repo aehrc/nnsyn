@@ -1,7 +1,7 @@
 from typing import Type
 
 from nnunetv2.preprocessing.normalization.default_normalization_schemes import CTNormalization, NoNormalization, \
-    ZScoreNormalization, RescaleTo01Normalization, RGBTo01Normalization, ImageNormalization, CTtanh, MRtanh
+    ZScoreNormalization, RescaleTo01Normalization, RGBTo01Normalization, ImageNormalization, CTtanh, MRtanh, CTNormalizationClippingSynthrad2025
 
 channel_name_to_normalization_mapping = {
     'CT': CTNormalization,
@@ -10,7 +10,8 @@ channel_name_to_normalization_mapping = {
     'rescale_to_0_1': RescaleTo01Normalization,
     'rgb_to_0_1': RGBTo01Normalization,
     'CT_tanh' : CTtanh,
-    'MR_tanh' : MRtanh
+    'MR_tanh' : MRtanh,
+    'CT_zscore_synthrad' : CTNormalizationClippingSynthrad2025
 }
 
 

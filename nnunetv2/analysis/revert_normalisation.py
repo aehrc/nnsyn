@@ -34,9 +34,9 @@ def revert_normalisation(pred_path, ct_mean, ct_std, save_path=None):
         img_sitk = sitk.ReadImage(img)
         img_array = sitk.GetArrayFromImage(img_sitk)
         img_array = img_array * ct_std + ct_mean
-        img_sitk = sitk.GetImageFromArray(img_array)
-        img_sitk.CopyInformation(img_sitk)
-        sitk.WriteImage(img_sitk, os.path.join(save_path, os.path.basename(img)))
+        img_sitk_reverted = sitk.GetImageFromArray(img_array)
+        img_sitk_reverted.CopyInformation(img_sitk)
+        sitk.WriteImage(img_sitk_reverted, os.path.join(save_path, os.path.basename(img)))
         # print(f"Reverted saved to {os.path.join(save_path, os.path.basename(img))}")
 
 if __name__ == "__main__":
