@@ -31,12 +31,32 @@ def makedirs_raw_dataset(dataset_data_path):
     os.makedirs(os.path.join(dataset_data_path, 'imagesTr'), exist_ok=True)
     os.makedirs(os.path.join(dataset_data_path, 'labelsTr'), exist_ok = True)
 
-def process_file_masked(data_path, dataset_path, modality_suffix="_0000", outsideValue=0):
+# def process_file_masked(data_path, dataset_path, modality_suffix="_0000", outsideValue=0):
+#     curr_img = sitk.ReadImage(data_path)
+#     mask_img = sitk.ReadImage(data_path.replace('mr.mha', 'mask.mha'), sitk.sitkUInt8)
+#     mask_img = sitk.Cast(mask_img, sitk.sitkUInt8)
+#     # masked_image = sitk.Mask(image=curr_img, maskImage=mask_img, maskingValue=0, outsideValue=outsideValue)
+
+#     # values in the mask different from maskingValue are copied over, all other values are set to outsideValue
+#     filename = data_path.split(os.sep)[-2]
+#     if not filename.endswith(f'{modality_suffix}.mha'):
+#         filename = filename + f'{modality_suffix}.mha'
+#     sitk.WriteImage(masked_image, os.path.join(dataset_path, f'imagesTr/{filename}'))
+
+#     data = sitk.GetArrayFromImage(curr_img)
+#     data = np.ones_like(data)
+
+#     filename = filename.replace(modality_suffix, '')  # Remove modality suffix for masks
+#     label_path = os.path.join(dataset_path, f'labelsTr/{filename}')
+#     if not os.path.exists(label_path):
+#         label_img = sitk.GetImageFromArray(data)
+#         label_img.SetDirection(curr_img.GetDirection())
+#         label_img.SetOrigin(curr_img.GetOrigin())
+#         label_img.SetSpacing(curr_img.GetSpacing())
+#         sitk.WriteImage(label_img, label_path)
+
+def process_file(data_path, dataset_path, modality_suffix="_0000", outsideValue=0):
     curr_img = sitk.ReadImage(data_path)
-    mask_img = sitk.ReadImage(data_path.replace('mr.mha', 'mask.mha'), sitk.sitkUInt8)
-    mask_img = sitk.Cast(mask_img, sitk.sitkUInt8)
-    masked_image = sitk.Mask(curr_img, mask_img, outsideValue=outsideValue)
-    # values in the mask different from maskingValue are copied over, all other values are set to outsideValue
     filename = data_path.split(os.sep)[-2]
     if not filename.endswith(f'{modality_suffix}.mha'):
         filename = filename + f'{modality_suffix}.mha'
@@ -80,3 +100,33 @@ def move_preprocessed(nnunet_datas_preprocessed_dir, nnunet_targets_preprocessed
     for (datas_path, targets_path) in zip(list_preprocessed_datas_seg_path, list_preprocessed_targets_path):
         print(targets_path, "->", datas_path)
         shutil.copy(src = targets_path, dst = datas_path) 
+
+def move_masks(list_data_mask, dataset_mask_path):
+
+    def _process_mask_file(data_path, dataset_mask_path):
+
+        filename = data_path.split(os.sep)[-2]
+        if not filename.endswith(f'.mha'):
+            filename = filename + f'.mha'
+        shutil.copy(data_path, os.path.join(dataset_mask_path, filename))
+
+
+    # Use the affine from the last MRI as a placeholder, but for sitk we use spacing/origin/direction from the image itself
+    os.makedirs(dataset_mask_path, exist_ok=True) 
+    with ThreadPoolExecutor() as executor:
+        list(tqdm(executor.map(lambda data_path: _process_mask_file(data_path, dataset_mask_path), list_data_mask), total=len(list_data_mask)))
+
+def move_gt_target(list_data_ct, dataset_target_path2):
+
+    def _process_target_file(data_path, dataset_target_path2):
+
+        filename = data_path.split(os.sep)[-2]
+        if not filename.endswith(f'.mha'):
+            filename = filename + f'.mha'
+        shutil.copy(data_path, os.path.join(dataset_target_path2, filename))
+
+
+    # Use the affine from the last MRI as a placeholder, but for sitk we use spacing/origin/direction from the image itself
+    os.makedirs(dataset_target_path2, exist_ok=True) 
+    with ThreadPoolExecutor() as executor:
+        list(tqdm(executor.map(lambda data_path: _process_target_file(data_path, dataset_target_path2), list_data_ct), total=len(list_data_ct)))

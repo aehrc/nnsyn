@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1
 #SBATCH --signal=USR1@360
-#SBATCH --output=logs/R-%x.%j-nnunet_trans_data342_mednextB.out
+#SBATCH --output=logs/R-%x.%j-nnunet_trans_data280_track_fold0.out
 #SBATCH --open-mode=append
 
 
@@ -22,13 +22,14 @@ module load cuda/11.8.0
 eval "$(conda shell.bash hook)"
 conda activate /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/envs/nnunet_trans2
 
-cd /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/src/script
+cd /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/ref/nnUNet_translation/nnunetv2/analysis/nnUNet_run_scripts
 
 export nnUNet_raw="/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/raw"
 export nnUNet_preprocessed="/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/preprocessed"
 export nnUNet_results="/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results"
 
-# nnUNetv2_train 300 2d 0 -tr nnUNetTrainerMRCT
+# python /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/ref/nnUNet_translation/nnunetv2/analysis/nnUNet_preprocessing_scripts/Dataset270-AB-norm-V2R-stitched/dataset274_TH_nrom_masked-v2r.py
+srun nnUNetv2_train 280 3d_fullres 0 -tr nnUNetTrainerMRCT_track
 # srun nnUNetv2_train 314 3d_fullres 0 -tr nnUNetTrainerMRCT -p nnUNetResEncUNetMPlans
 # srun nnUNetv2_train 340 3d_fullres 0 -tr nnUNetTrainerV2_MedNeXt_B_kernel5 --c
-srun nnUNetv2_train 342 3d_fullres_patch_64_192_192 0 -tr nnUNetTrainerV2_MedNeXt_B_kernel5 --c
+# srun nnUNetv2_train 342 3d_fullres_patch_64_192_192 0 -tr nnUNetTrainerV2_MedNeXt_B_kernel5 --c

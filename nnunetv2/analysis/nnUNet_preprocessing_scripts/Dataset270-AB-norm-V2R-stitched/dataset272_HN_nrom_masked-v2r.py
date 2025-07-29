@@ -9,9 +9,9 @@ if __name__ == '__main__':
     TASK = 1
     REGION = "HN"
     config = {
-        "dataset_id": 282,  # Updated to 200 for CT noNorm
-        "dataset_data_name": f"synthrad2025_task1_MR_{REGION}_pre_v2r_stitched",
-        "dataset_target_name": f"synthrad2025_task1_CT_{REGION}_pre_v2r_stitched",
+        "dataset_id": 272,  # Updated to 200 for CT noNorm
+        "dataset_data_name": f"synthrad2025_task1_MR_{REGION}_pre_v2r_stitched_ants",
+        "dataset_target_name": f"synthrad2025_task1_CT_{REGION}_pre_v2r_stitched_ants",
         "data_root": f"/datasets/work/hb-synthrad2023/source/synthrad2025_data_v2r/synthRAD2025_Task1_Train/Task1/{REGION}", # include centreD
         "preprocessing_CT": "CT_zscore_synthrad", 
         "preprocessing_MRI": "MR",
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     # example with 2 input modalities
     list_data_mri = sorted(glob.glob(os.path.join(config["data_root"], '**','mr.mha'), recursive=True))
     list_data_mask = sorted(glob.glob(os.path.join(config["data_root"], '**','mask.mha'), recursive=True))
-    list_data_ct = sorted(glob.glob(os.path.join(config["data_root"], '**','ct_stitched_resampled.mha'), recursive=True))
+    list_data_ct = sorted(glob.glob(os.path.join(config["data_root"], '**','ct_stitched_resampled_ants.mha'), recursive=True))
     print("input1 ---", len(list_data_mri), list_data_mri[:3])
     print("input2 ---", len(list_data_mask), list_data_mask[:3])
     print("target ---", len(list_data_ct), list_data_ct[:3])
@@ -53,11 +53,11 @@ if __name__ == '__main__':
     makedirs_raw_dataset(dataset_data_path)
     makedirs_raw_dataset(dataset_target_path)
 
-    with ThreadPoolExecutor() as executor:
-        list(tqdm(executor.map(lambda data_path: process_file(data_path, dataset_data_path, "_0000", 0), list_data_mri), total=len(list_data_mri)))
+    # with ThreadPoolExecutor() as executor:
+    #     list(tqdm(executor.map(lambda data_path: process_file(data_path, dataset_data_path, "_0000", 0), list_data_mri), total=len(list_data_mri)))
 
-    with ThreadPoolExecutor() as executor:
-        list(tqdm(executor.map(lambda target_path: process_file(target_path, dataset_target_path, "_0000", -1000), list_data_ct), total=len(list_data_ct)))
+    # with ThreadPoolExecutor() as executor:
+    #     list(tqdm(executor.map(lambda target_path: process_file(target_path, dataset_target_path, "_0000", -1000), list_data_ct), total=len(list_data_ct)))
 
 
     # create dataset.json
@@ -93,4 +93,4 @@ if __name__ == '__main__':
     move_gt_target(list_data_ct, dataset_target_path2)
 
     # train the network
-    os.system(f'nnUNetv2_train {dataset_id} {config["configuration"]} {config["fold"]} -tr {config["trainer"]}')
+    # os.system(f'nnUNetv2_train {dataset_id} {config["configuration"]} {config["fold"]} -tr {config["trainer"]}')
