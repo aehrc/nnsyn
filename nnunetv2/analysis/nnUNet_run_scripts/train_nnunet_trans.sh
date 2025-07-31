@@ -32,7 +32,9 @@ export nnUNet_results="/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workp
 # srun nnUNetv2_train 284 3d_fullres 0 -tr nnUNetTrainerMRCT_track
 # srun nnUNetv2_train 284 3d_fullres 0 -tr nnUNetTrainerMRCT_1500epochs
 # srun nnUNetv2_train 290 3d_fullres 0 -tr nnUNetTrainerMRCT_track -p nnUNetResEncUNetLPlans --c
+ srun nnUNetv2_train 270 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked
+
 
 ## mednext models
 # srun nnUNetv2_train 300 3d_fullres 0 -tr nnUNetTrainerV2_MedNeXt_L_kernel3 --c
-srun nnUNetv2_train 302 3d_fullres_patch_64_192_192 0 -tr nnUNetTrainerV2_MedNeXt_L_kernel3 --c
+# srun nnUNetv2_train 302 3d_fullres_patch_64_192_192 0 -tr nnUNetTrainerV2_MedNeXt_L_kernel3 --c

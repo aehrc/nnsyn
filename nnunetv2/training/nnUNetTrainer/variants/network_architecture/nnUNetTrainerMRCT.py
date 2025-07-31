@@ -283,6 +283,7 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         self.aim_run['num_epochs'] = self.num_epochs
         self.aim_run['current_epoch'] = self.current_epoch
         self.aim_run['job_id'] = os.environ['SLURM_JOB_ID'] if 'SLURM_JOB_ID' in os.environ else 'local_run'
+        # assign region based on dataset name
         if '_AB_' in self.plans_manager.dataset_name:
             self.aim_run['region'] = 'AB'
         elif '_TH_' in self.plans_manager.dataset_name:
@@ -291,6 +292,14 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
             self.aim_run['region'] = 'HN' 
         else:
             self.aim_run['region'] = 'Unknown'
+
+        # assign task based on dataset name
+        if '_task1_' in self.plans_manager.dataset_name:
+            self.aim_run['task'] = '1'
+        elif '_task2_' in self.plans_manager.dataset_name:
+            self.aim_run['task'] = '2'
+        else:
+            self.aim_run['task'] = 'Unknown'
 
     def on_epoch_end(self):
         super().on_epoch_end()
@@ -415,7 +424,10 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         def term_handler(signum, frame):
             print(f'Caught signal: {signum} - terminating the process')
             self.aim_run.close()
-            os.system(f"scancel {os.environ['SLURM_JOB_ID']}") # fix job cancellation
+            try:
+                os.system(f"scancel {os.environ['SLURM_JOB_ID']}") # fix job cancellation
+            except:
+                print('Cannot cancel the job. Exit the process.')
             sys.exit(0)
             print('Signal sigterm. Close Aim. cancel the job and exit. ')
             # exit the process

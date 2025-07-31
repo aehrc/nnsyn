@@ -109,6 +109,27 @@ class nnUNetDataset(object):
             seg = np.vstack((seg, seg_prev[None]))
 
         return data, seg, entry['properties']
+    
+
+class nnUNetDatasetMask(nnUNetDataset):
+    def __init__(self, folder: str, case_identifiers: List[str] = None,
+                 num_images_properties_loading_threshold: int = 0,
+                 folder_with_segs_from_previous_stage: str = None):
+        super().__init__(folder, case_identifiers, num_images_properties_loading_threshold, folder_with_segs_from_previous_stage)
+
+    def load_case(self, key):
+        data, seg, properties = super().load_case(key)
+        # Load mask if available
+        entry = self[key]
+        if isfile(entry['data_file'][:-4] + "_mask.npy"):
+            mask = np.load(entry['data_file'][:-4] + "_mask.npy", 'r')
+            if self.keep_files_open:
+                self.dataset[key]['open_mask_file'] = mask
+                # print('saving open mask file')
+        else:
+            mask = np.load(entry['data_file'])['mask']
+
+        return data, seg, properties, mask
 
 
 if __name__ == '__main__':

@@ -74,6 +74,8 @@ def process_file(data_path, dataset_path, modality_suffix="_0000", outsideValue=
         label_img.SetSpacing(curr_img.GetSpacing())
         sitk.WriteImage(label_img, label_path)
 
+        
+
 def create_dataset_json(config, preprocessing, dataset_data_path): 
     data_dataset_json = {
         "labels": {
@@ -93,16 +95,26 @@ def create_dataset_json(config, preprocessing, dataset_data_path):
         json.dump(data_dataset_json, f)
 
 def move_preprocessed(nnunet_datas_preprocessed_dir, nnunet_targets_preprocessed_dir, folder_name): 
-    list_preprocessed_datas_seg_path = sorted(glob.glob(os.path.join(nnunet_targets_preprocessed_dir, f'{folder_name}/*_seg.npy')))
-    list_preprocessed_targets_path = sorted(glob.glob(os.path.join(nnunet_datas_preprocessed_dir, f'{folder_name}/*.npy')))
+    list_preprocessed_datas_seg_path = sorted(glob.glob(os.path.join(nnunet_targets_preprocessed_dir, f'{folder_name}/*_seg.npy'))) # source ct images to mri seg
+    list_preprocessed_targets_path = sorted(glob.glob(os.path.join(nnunet_datas_preprocessed_dir, f'{folder_name}/*.npy'))) # target ct images
     list_preprocessed_targets_path = [name for name in list_preprocessed_targets_path if '_seg' not in name]
 
-    # assert len(list_preprocessed_datas_seg_path) == len(list_preprocessed_targets_path)
+    assert len(list_preprocessed_datas_seg_path) == len(list_preprocessed_targets_path)
     assert len(list_preprocessed_datas_seg_path) > 0, "No preprocessed data found in the specified directory."
 
     for (datas_path, targets_path) in zip(list_preprocessed_datas_seg_path, list_preprocessed_targets_path):
         print(targets_path, "->", datas_path)
         shutil.copy(src = targets_path, dst = datas_path) 
+
+def move_preprocessed_mask(nnunet_datas_preprocessed_dir, nnunet_targets_preprocessed_dir, folder_name):
+    list_preprocessed_targets_path = sorted(glob.glob(os.path.join(nnunet_datas_preprocessed_dir, f'{folder_name}/*_seg.npy'))) # target mask images
+
+    assert len(list_preprocessed_targets_path) > 0, "No preprocessed data found in the specified directory."
+
+    for targets_path in list_preprocessed_targets_path:
+        datas_path = os.path.join(nnunet_targets_preprocessed_dir, folder_name, os.path.basename(targets_path).replace('_seg', '_mask'))
+        print(targets_path, "->", datas_path)
+        shutil.copy(src = targets_path, dst = datas_path)
 
 def move_gt_segmentations(dataset_target_path, nnunet_targets_preprocessed_dir):
     list_targets = glob.glob(os.path.join(f"{dataset_target_path}/imagesTr", '*'))
