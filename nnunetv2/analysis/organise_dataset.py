@@ -92,14 +92,30 @@ def create_dataset_json(config, preprocessing, dataset_data_path):
     with open(dump_data_datasets_path, 'w') as f:
         json.dump(data_dataset_json, f)
 
-def move_preprocessed(nnunet_datas_preprocessed_dir, nnunet_targets_preprocessed_dir, config): 
-    list_preprocessed_datas_seg_path = sorted(glob.glob(os.path.join(nnunet_targets_preprocessed_dir, f'{config["plan"]}_{config["configuration"]}/*_seg.npy')))
-    list_preprocessed_targets_path = sorted(glob.glob(os.path.join(nnunet_datas_preprocessed_dir, f'{config["plan"]}_{config["configuration"]}/*.npy')))
+def move_preprocessed(nnunet_datas_preprocessed_dir, nnunet_targets_preprocessed_dir, folder_name): 
+    list_preprocessed_datas_seg_path = sorted(glob.glob(os.path.join(nnunet_targets_preprocessed_dir, f'{folder_name}/*_seg.npy')))
+    list_preprocessed_targets_path = sorted(glob.glob(os.path.join(nnunet_datas_preprocessed_dir, f'{folder_name}/*.npy')))
     list_preprocessed_targets_path = [name for name in list_preprocessed_targets_path if '_seg' not in name]
+
+    # assert len(list_preprocessed_datas_seg_path) == len(list_preprocessed_targets_path)
+    assert len(list_preprocessed_datas_seg_path) > 0, "No preprocessed data found in the specified directory."
 
     for (datas_path, targets_path) in zip(list_preprocessed_datas_seg_path, list_preprocessed_targets_path):
         print(targets_path, "->", datas_path)
         shutil.copy(src = targets_path, dst = datas_path) 
+
+def move_gt_segmentations(dataset_target_path, nnunet_targets_preprocessed_dir):
+    list_targets = glob.glob(os.path.join(f"{dataset_target_path}/imagesTr", '*'))
+    list_targets.sort()
+    list_gt_segmentations_datas = glob.glob(os.path.join(f"{nnunet_targets_preprocessed_dir}/gt_segmentations", '*'))
+    list_gt_segmentations_datas.sort()
+
+    print(nnunet_targets_preprocessed_dir)
+
+    for (preprocessed_path, gt_path) in zip(list_targets, list_gt_segmentations_datas):
+        # here, gt_path is the path to the gt_segmentation in nnUNet_preprocessed.
+        print(preprocessed_path, "->", gt_path) # ensure correct file pairing; 
+        shutil.copy(src = preprocessed_path, dst = gt_path) 
 
 def move_masks(list_data_mask, dataset_mask_path):
 
@@ -130,3 +146,20 @@ def move_gt_target(list_data_ct, dataset_target_path2):
     os.makedirs(dataset_target_path2, exist_ok=True) 
     with ThreadPoolExecutor() as executor:
         list(tqdm(executor.map(lambda data_path: _process_target_file(data_path, dataset_target_path2), list_data_ct), total=len(list_data_ct)))
+
+def modify_plan(plan_file_path, old_config_name, new_config_name, attribute_to_change, new_value):
+    '''
+    Making changes to preprocessing including patch sizes
+    '''
+
+    new_config =  {
+            "inherits_from": old_config_name,
+            "data_identifier": new_config_name,
+            attribute_to_change: new_value
+        }
+    with open(plan_file_path) as f:
+        plan = json.load(f)
+    plan['configurations'][new_config_name] = new_config
+    with open(plan_file_path, 'w') as f:
+        json.dump(plan, f, indent=4)
+    print(f'The plan {plan_file_path} has been updated. ')

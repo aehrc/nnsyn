@@ -1,4 +1,4 @@
-from nnunetv2.training.nnUNetTrainer.variants.network_architecture.nnUNetTrainerMRCT import nnUNetTrainerMRCT
+from nnunetv2.training.nnUNetTrainer.variants.network_architecture.nnUNetTrainerMRCT import nnUNetTrainerMRCT, nnUNetTrainerMRCT_track
 from nnunetv2.utilities.plans_handling.plans_handler import ConfigurationManager, PlansManager
 from nnunetv2.training.loss.dice import get_tp_fp_fn_tn
 import torch
@@ -12,7 +12,7 @@ from typing import Union, Tuple, List
 
 
 
-class nnUNetTrainerMedNext(nnUNetTrainerMRCT):
+class nnUNetTrainerMedNext(nnUNetTrainerMRCT_track):
     def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict, unpack_dataset: bool = True,
                  device: torch.device = torch.device('cuda')):
         super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)

@@ -1,3 +1,4 @@
+import sys
 from nnunetv2.training.nnUNetTrainer.nnUNetTrainer import nnUNetTrainer
 import torch
 from typing import Union, Tuple, List
@@ -215,6 +216,9 @@ import numpy as np
 from nnunetv2.analysis.revert_normalisation import get_ct_normalisation_values, revert_normalisation
 from nnunetv2.analysis.result_analysis import FinalValidationResults, ValidationResults
 
+
+
+
 class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
     def __init__(
         self,
@@ -272,11 +276,21 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         # log some initial information
         self.aim_run['fold'] = self.fold
         self.aim_run['dataset_name'] = self.plans_manager.dataset_name
+        self.aim_run['dataset_id'] = self.plans_manager.dataset_name.split('_')[0].replace('Dataset', '')
         self.aim_run['configuration'] = self.configuration_name
         self.aim_run['plan'] = self.plans_manager.plans_name
         self.aim_run['trainer'] = self.__class__.__name__
         self.aim_run['num_epochs'] = self.num_epochs
         self.aim_run['current_epoch'] = self.current_epoch
+        self.aim_run['job_id'] = os.environ['SLURM_JOB_ID'] if 'SLURM_JOB_ID' in os.environ else 'local_run'
+        if '_AB_' in self.plans_manager.dataset_name:
+            self.aim_run['region'] = 'AB'
+        elif '_TH_' in self.plans_manager.dataset_name:
+            self.aim_run['region'] = 'TH'
+        elif '_HN_' in self.plans_manager.dataset_name:
+            self.aim_run['region'] = 'HN' 
+        else:
+            self.aim_run['region'] = 'Unknown'
 
     def on_epoch_end(self):
         super().on_epoch_end()
@@ -301,7 +315,7 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
             self.print_to_log_file(f'<========= validation used time: {time() - cur_time}', also_print_to_console=True)
 
 
-    def perform_actual_validation(self):
+    def perform_actual_validation(self, save_probabilities: bool = False):
         """
         This method is called at the end of all training.
         It performs the actual validation, computes metrics, and logs them using Aim.
@@ -332,6 +346,10 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         self.print_to_log_file(f'Final MAE: {self.aim_run["final_mae_mean"]}')
         self.print_to_log_file(f'Final PSNR: {self.aim_run["final_psnr_mean"]}')
         self.print_to_log_file(f'Final MS-SSIM: {self.aim_run["final_ms_ssim_mean"]}')
+                
+        self.print_to_log_file('Final validation completed. Results saved to Aim. Exiting the process.')
+        sys.exit(0)  # Exit the process after training ends
+
 
         
     
@@ -384,7 +402,6 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
                 print(f'Requeued job {job_id}.')
             else:
                 print('Requeue failed...')
-            os._exit(0)
 
         def sig_handler(signum, frame):
             print(f'Caught signal: {signum} - requeuing the job')
@@ -398,15 +415,29 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         def term_handler(signum, frame):
             print(f'Caught signal: {signum} - terminating the process')
             self.aim_run.close()
-            print('Signal sigterm. Close Aim. ')
+            os.system(f"scancel {os.environ['SLURM_JOB_ID']}") # fix job cancellation
+            sys.exit(0)
+            print('Signal sigterm. Close Aim. cancel the job and exit. ')
             # exit the process
-            os._exit(0)
         # start
         print('Setting signal to automatically requeue the job before timeout.')
         signal.signal(signal.SIGUSR1, sig_handler)
         signal.signal(signal.SIGTERM, term_handler)
         print('Start listening: waiting for signal')
 
+
+class nnUNetTrainerMRCT_1500epochs(nnUNetTrainerMRCT_track):
+    def __init__(
+        self,
+        plans: dict,
+        configuration: str,
+        fold: int,
+        dataset_json: dict,
+        unpack_dataset: bool = True,
+        device: torch.device = torch.device("cuda")
+    ):
+        super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
+        self.num_epochs = 1500
 
 
 
