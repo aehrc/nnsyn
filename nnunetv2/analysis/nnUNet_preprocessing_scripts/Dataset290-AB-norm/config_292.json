@@ -1,9 +1,0 @@
-{
-    "dataset_id": 292,
-    "dataset_data_name": "synthrad2025_task1_MR_AB_zscore_synthrad",
-    "dataset_target_name": "synthrad2025_task1_CT_AB_zscore_synthrad",
-    "data_root": "/datasets/work/hb-synthrad2023/source/synthrad2025_data_v2/synthRAD2025_Task1_Train/Task1/AB",
-    "preprocessing_CT": "CT_tanh",
-    "preprocessing_MRI": "MR_tanh",
-    "preprocessing_mask": "no mask"
-}

@@ -1,0 +1,19 @@
+{
+    "dataset_id": 274,
+    "dataset_data_name": "synthrad2025_task1_MR_TH_pre_v2r_stitched_ants",
+    "dataset_target_name": "synthrad2025_task1_CT_TH_pre_v2r_stitched_ants",
+    "data_root": "/datasets/work/hb-synthrad2023/source/synthrad2025_data_v2r/synthRAD2025_Task1_Train/Task1/TH",
+    "preprocessing_CT": "CT_zscore_synthrad",
+    "preprocessing_MRI": "MR",
+    "preprocessing_mask": "no mask",
+    "fold": 0,
+    "configuration": "3d_fullres",
+    "trainer": "nnUNetTrainerMRCT",
+    "plan": "nnUNetPlans",
+    "task": 1,
+    "region": "TH",
+    "save_path": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/ref/nnUNet_translation/nnunetv2/analysis/nnUNet_preprocessing_scripts/Dataset270-AB-norm-V2R-stitched/config_274__nnUNetTrainerMRCT__nnUNetPlans__3d_fullres.json",
+    "nnUNet_raw": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/raw",
+    "nnUNet_preprocessed": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/preprocessed",
+    "nnUNet_results": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results"
+}

@@ -1,9 +1,0 @@
-{
-    "dataset_id": 344,
-    "dataset_data_name": "synthrad2025_task1_MR_TH_mednext",
-    "dataset_target_name": "synthrad2025_task1_CT_TH_mednext",
-    "data_root": "/datasets/work/hb-synthrad2023/source/synthrad2025_data_v2/synthRAD2025_Task1_Train/Task1/TH",
-    "preprocessing_CT": "CT",
-    "preprocessing_MRI": "MR",
-    "preprocessing_mask": "no mask"
-}
