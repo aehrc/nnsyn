@@ -424,10 +424,11 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         def term_handler(signum, frame):
             print(f'Caught signal: {signum} - terminating the process')
             self.aim_run.close()
-            try:
-                os.system(f"scancel {os.environ['SLURM_JOB_ID']}") # fix job cancellation
-            except:
-                print('Cannot cancel the job. Exit the process.')
+            if self.current_epoch == self.num_epochs:
+                try:
+                    os.system(f"scancel {os.environ['SLURM_JOB_ID']}") # fix job cancellation
+                except:
+                    print('Cannot cancel the job. Exit the process.')
             sys.exit(0)
             print('Signal sigterm. Close Aim. cancel the job and exit. ')
             # exit the process
