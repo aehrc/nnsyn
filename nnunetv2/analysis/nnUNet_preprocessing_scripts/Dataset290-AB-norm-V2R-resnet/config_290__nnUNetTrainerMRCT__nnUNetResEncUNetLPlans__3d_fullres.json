@@ -8,7 +8,7 @@
     "preprocessing_mask": "masked",
     "fold": 0,
     "configuration": "3d_fullres",
-    "trainer": "nnUNetTrainerMRCT",
+    "trainer": "nnUNetTrainerMRCT_track",
     "planner_class": "nnUNetPlannerResEncL",
     "plan": "nnUNetResEncUNetLPlans",
     "task": 1,

@@ -115,3 +115,4 @@ ENV/
 
 !documentation/assets/scribble_example.png
 *.out
+nnunetv2/analysis/nnUNet_run_scripts/dataset282_HN

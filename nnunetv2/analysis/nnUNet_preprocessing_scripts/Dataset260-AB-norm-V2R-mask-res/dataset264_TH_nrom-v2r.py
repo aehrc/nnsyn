@@ -8,8 +8,8 @@ if __name__ == '__main__':
 
 
     TASK = 1
-    REGION = "AB"
-    DATASET_ID = 270
+    REGION = "TH"
+    DATASET_ID = 264
     config = {
         "dataset_id": DATASET_ID,  # Updated to 200 for CT noNorm
         "dataset_data_name": f"synthrad2025_task1_MR_{REGION}_pre_v2r_stitched_masked",
@@ -20,8 +20,9 @@ if __name__ == '__main__':
         "preprocessing_mask": "masked",
         "fold": 0,
         "configuration": "3d_fullres",
-        "trainer": "nnUNetTrainerMRCT",
-        "plan": "nnUNetPlans", 
+        "trainer": "nnUNetTrainerMRCT_loss_masked",
+        "planner_class": "nnUNetPlannerResEncL",
+        "plan": "nnUNetResEncUNetLPlans", 
         "task": TASK,
         "region": REGION
     }
@@ -80,11 +81,12 @@ if __name__ == '__main__':
     if 'MPLBACKEND' in os.environ: 
         del os.environ['MPLBACKEND'] # avoid conflicts with matplotlib backend  
         
-    os.system(f'nnUNetv2_plan_and_preprocess -d {dataset_id} -c {config["configuration"]}')
-    os.system(f'nnUNetv2_unpack {dataset_id} {config["configuration"]} {config["fold"]}')
+    os.system(f'nnUNetv2_plan_and_preprocess -d {dataset_id} -c {config["configuration"]} -pl {config["planner_class"]}')
+    os.system(f'nnUNetv2_unpack {dataset_id} {config["configuration"]} {config["fold"]} -p {config["plan"]}')
 
-    os.system(f'nnUNetv2_plan_and_preprocess -d {dataset_id + 1} -c {config["configuration"]}')
-    os.system(f'nnUNetv2_unpack {dataset_id + 1} {config["configuration"]} {config["fold"]}')
+    os.system(f'nnUNetv2_plan_and_preprocess -d {dataset_id + 1} -c {config["configuration"]} -pl {config["planner_class"]}')
+    os.system(f'nnUNetv2_unpack {dataset_id + 1} {config["configuration"]} {config["fold"]} -p {config["plan"]}')
+
 
     # move preprocessed targets to data
 

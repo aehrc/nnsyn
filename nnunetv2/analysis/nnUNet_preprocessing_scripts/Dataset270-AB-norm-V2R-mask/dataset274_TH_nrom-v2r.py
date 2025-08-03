@@ -8,8 +8,8 @@ if __name__ == '__main__':
 
 
     TASK = 1
-    REGION = "AB"
-    DATASET_ID = 270
+    REGION = "TH"
+    DATASET_ID = 274
     config = {
         "dataset_id": DATASET_ID,  # Updated to 200 for CT noNorm
         "dataset_data_name": f"synthrad2025_task1_MR_{REGION}_pre_v2r_stitched_masked",
