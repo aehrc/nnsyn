@@ -339,11 +339,11 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
 
         pred_path = join(self.output_folder, 'validation')
         pred_path_revert_norm = pred_path + "_revert_norm"
-        revert_normalisation(pred_path, ct_mean, ct_std, save_path=pred_path_revert_norm)
+        mask_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'masks')
+        revert_normalisation(pred_path, ct_mean, ct_std, save_path=pred_path_revert_norm, mask_path=mask_path, mask_outside_value=-1000)
 
         # compute metrics
         gt_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_target')
-        mask_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'masks')
         src_path = join(nnUNet_raw, self.plans_manager.dataset_name, 'imagesTr')
         ts = FinalValidationResults(pred_path_revert_norm, gt_path, mask_path, src_path)
         dict_metric = ts.process_patients_mp()
@@ -373,11 +373,12 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
 
         pred_path = join(self.output_folder, 'validation')
         pred_path_revert_norm = pred_path + "_revert_norm"
-        revert_normalisation(pred_path, ct_mean, ct_std, save_path=pred_path_revert_norm)
+        # use masked image after revert normalisation
+        mask_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'masks')
+        revert_normalisation(pred_path, ct_mean, ct_std, save_path=pred_path_revert_norm, mask_path=mask_path, mask_outside_value=-1000)
 
         # compute metrics
         gt_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_target')
-        mask_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'masks')
         src_path = join(nnUNet_raw, self.plans_manager.dataset_name, 'imagesTr')
         ts = ValidationResults(pred_path_revert_norm, gt_path, mask_path, src_path)
         dict_metric = ts.process_patients_mp()
