@@ -303,7 +303,7 @@ class nnUNetTrainer(object):
             arch_init_kwargs,
             arch_init_kwargs_req_import,
             num_input_channels,
-            1, #TODO:arthur - for now defined as 1 instead of num_output_channels
+            num_output_channels, #TODO:arthur - for now defined as 1 instead of num_output_channels, this has to be fixed! 
             allow_init=True,
             deep_supervision=enable_deep_supervision,
             decoder_type=decoder_type)
