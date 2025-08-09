@@ -4,12 +4,15 @@ from tqdm import tqdm
 import SimpleITK as sitk
 import pandas as pd
 import json
-# from image_metrics import ImageMetricsCompute
 import matplotlib.pyplot as plt
 from pathlib import Path
 import shutil
 from nnunetv2.analysis.image_metrics import ImageMetricsCompute
-        
+from nnunetv2.analysis.segmentation_metrics import SegmentationMetricsCompute    
+import numpy as np    
+
+
+
 
 
 class ValidationResults():
@@ -18,25 +21,40 @@ class ValidationResults():
     It computes the metrics and saves the results in a folder.
     This is used directly in the nnUNetTrainerMRCT class.
     """
-    
-    def __init__(self, pred_path, gt_path, mask_path, src_path=None, save_path=None):
+
+    def __init__(self, pred_path, gt_path, mask_path, src_path=None, gt_segmentation_path=None, save_path=None, save_pred_seg_path=None):
         if not save_path:
             save_path = pred_path+'_analysis'
+        if gt_segmentation_path:
+            save_pred_seg_path = os.path.join(save_path, 'predicted_segmentations')
+            if not os.path.exists(save_pred_seg_path):
+                os.makedirs(save_pred_seg_path)
+                
+
+            print(f'Saving predicted segmentations to: {save_pred_seg_path}')
         print(f'Save path: {save_path}')
         os.makedirs(save_path, exist_ok=True)
         self.save_path = save_path
+        self.save_pred_seg_path = save_pred_seg_path
 
         self.pred_path = pred_path
         self.gt_path = gt_path
         self.mask_path = mask_path
         self.src_path = src_path
+        self.gt_segmentation_path = gt_segmentation_path
 
         pred_files = sorted(glob(os.path.join(pred_path, '*.mha')))
         self.patient_ids = [Path(pred_file).stem for pred_file in pred_files]
 
         # init image metrics
-        self.test_metrics = ImageMetricsCompute()
-        self.test_metrics.init_storage(["mae", "psnr", "ms_ssim"])
+        self.image_metrics = ImageMetricsCompute()
+        self.image_metrics.init_storage(["mae", "psnr", "ms_ssim"])
+
+        if self.gt_segmentation_path:
+            print(f'Using segmentation metrics from: {self.gt_segmentation_path}')
+            # init segmentation metrics
+            self.seg_metrics = SegmentationMetricsCompute()
+            self.seg_metrics.init_storage(["DICE", "HD95"])
     
     def process_patients_mp(self):
         """
@@ -60,23 +78,34 @@ class ValidationResults():
 
     def analysis_patients(self):
         # save aggregated metrics
-        dict_metric = self.test_metrics.aggregate()
+        dict_metric = self.image_metrics.aggregate()
+        if self.gt_segmentation_path:
+            dict_metric_seg = self.seg_metrics.aggregate()
+            dict_metric.update(dict_metric_seg)
         with open(os.path.join(self.save_path, 'results_overall_masked.json'), 'w') as f:
             json.dump(dict_metric, f, indent=4)
 
         # save individual metric
         df = pd.DataFrame(
             {
-                'patient_id': self.test_metrics.storage_id,
-                'mae': self.test_metrics.storage['mae'],
-                'ms_ssim': self.test_metrics.storage['ms_ssim'],
-                'psnr': self.test_metrics.storage['psnr'],
+                'patient_id': self.image_metrics.storage_id,
+                'mae': self.image_metrics.storage['mae'],
+                'ms_ssim': self.image_metrics.storage['ms_ssim'],
+                'psnr': self.image_metrics.storage['psnr'],
             }
         )
+        if self.gt_segmentation_path:
+            df['DICE'] = self.seg_metrics.storage['DICE']
+            df['HD95'] = self.seg_metrics.storage['HD95']
         df.to_csv(os.path.join(self.save_path, 'results_individual.csv'), index=True)
+        
+        # print results
         print("mean mae:", dict_metric['mae']['mean'])
         print("mean psnr:", dict_metric['psnr']['mean'])
         print("mean ms_ssim:", dict_metric['ms_ssim']['mean'])
+        if self.gt_segmentation_path:
+            print("mean DICE:", dict_metric['DICE']['mean'])
+            print("mean HD95:", dict_metric['HD95']['mean'])
         return dict_metric
 
     def process_a_patient(self, patient_id):
@@ -89,12 +118,22 @@ class ValidationResults():
         img_gt = sitk.ReadImage(gt_path, sitk.sitkFloat32)
         img_mask = sitk.ReadImage(mask_path, sitk.sitkUInt8)
 
-        # compute scores
+        # compute image scores
         array_pred = sitk.GetArrayFromImage(img_pred)
         array_gt = sitk.GetArrayFromImage(img_gt)
         array_mask = sitk.GetArrayFromImage(img_mask)
-        res = self.test_metrics.score_patient(array_gt, array_pred, array_mask)
-        self.test_metrics.add(res, patient_id)
+        res = self.image_metrics.score_patient(array_gt, array_pred, array_mask)
+        self.image_metrics.add(res, patient_id)
+
+        # compute segmentation scores
+        if self.gt_segmentation_path:
+            mask_transposed = load_image_file_directly(location=mask_path)
+            gt_segmentation_path = os.path.join(self.gt_segmentation_path, f'{patient_id}.mha')
+            gt_segmentation_transposed = load_image_file_directly(location=gt_segmentation_path)
+
+
+            res_seg = self.seg_metrics.score_patient_ts(pred_path, mask_transposed, gt_segmentation_transposed, patient_id, save_pred_seg_path = self.save_pred_seg_path)
+            self.seg_metrics.add(res_seg, patient_id)
 
     def aim_log_one_patient(self, aim_run, epoch, max_images=2):
         """
@@ -163,8 +202,8 @@ class FinalValidationResults(ValidationResults):
     This is used directly in the nnUNetTrainerMRCT class.
     """
     
-    def __init__(self, pred_path, gt_path, mask_path, src_path, save_path=None):
-        super().__init__(pred_path, gt_path, mask_path, save_path)
+    def __init__(self, pred_path, gt_path, mask_path, src_path=None, gt_segmentation_path=None, save_path=None, save_pred_seg_path=None):
+        super().__init__(pred_path, gt_path, mask_path, src_path, gt_segmentation_path, save_path, save_pred_seg_path)
         self.src_path = src_path
         self.save_path_all_3d_img = os.path.join(self.save_path, 'all_3d_img')
         if not os.path.exists(self.save_path_all_3d_img):
@@ -202,8 +241,18 @@ class FinalValidationResults(ValidationResults):
         array_pred = sitk.GetArrayFromImage(img_pred)
         array_gt = sitk.GetArrayFromImage(img_gt)
         array_mask = sitk.GetArrayFromImage(img_mask)
-        res = self.test_metrics.score_patient(array_gt, array_pred, array_mask)
-        self.test_metrics.add(res, patient_id)
+        res = self.image_metrics.score_patient(array_gt, array_pred, array_mask)
+        self.image_metrics.add(res, patient_id)
+
+        # compute segmentation scores
+        if self.gt_segmentation_path:
+            mask_transposed = load_image_file_directly(location=mask_path)
+            gt_segmentation_path = os.path.join(self.gt_segmentation_path, f'{patient_id}.mha')
+            gt_segmentation_transposed = load_image_file_directly(location=gt_segmentation_path)
+
+
+            res_seg = self.seg_metrics.score_patient_ts(pred_path, mask_transposed, gt_segmentation_transposed, patient_id, save_pred_seg_path = self.save_pred_seg_path)
+            self.seg_metrics.add(res_seg, patient_id)
 
         # save error images
         self._save_error_image(img_pred, img_gt, img_mask, patient_id)
@@ -228,6 +277,9 @@ class FinalValidationResults(ValidationResults):
         shutil.copy(src_path, os.path.join(self.save_path_all_3d_img, f'{patient_id}_src.mha'))
         shutil.copy(gt_path, os.path.join(self.save_path_all_3d_img, f'{patient_id}_gt.mha'))
         shutil.copy(mask_path, os.path.join(self.save_path_all_3d_img, f'{patient_id}_mask.mha'))
+        if self.gt_segmentation_path and self.save_pred_seg_path:
+            gt_segmentation_path = os.path.join(self.gt_segmentation_path, f'{patient_id}.mha')
+            shutil.copy(gt_segmentation_path, os.path.join(self.save_pred_seg_path, f'{patient_id}_gt_segmentation.mha'))
 
     def _save_png_slice(self, array_src, array_pred, array_gt, array_mask, patient_id, pc=50):
         # init parameters
@@ -287,162 +339,29 @@ class FinalValidationResults(ValidationResults):
 
 
 
-# class TestingResults():
-#     def __init__(self, pred_path, raw_image_path, save_path=None):
-#         if not save_path:
-#             save_path = pred_path+'_analysis'
-#         print(f'Save path: {save_path}')
-#         os.makedirs(save_path, exist_ok=True)
+def load_image_file_directly(*, location, return_orientation=False, set_orientation=None):
+    # immediatly load the file and find its orientation
+    result = sitk.ReadImage(location)
+    # Note, transpose needed because Numpy is ZYX according to SimpleITKs XYZ
+    img_arr = np.transpose(sitk.GetArrayFromImage(result), [2, 1, 0])
 
-#         self.pred_path = pred_path
-#         self.save_path = save_path
-#         self.raw_image_path = raw_image_path
+    if return_orientation:
+        spacing = result.GetSpacing()
+        origin = result.GetOrigin()
+        direction = result.GetDirection()
 
-#         pred_files = sorted(glob(os.path.join(pred_path, '*.mha')))
-#         self.patient_ids = [Path(pred_file).stem for pred_file in pred_files]
-#         self.col_names = ['src', 'pred', 'gt', 'mask', 'error']
 
-#         # init image metrics
-#         self.test_metrics = ImageMetricsCompute()
-#         self.test_metrics.init_storage(["mae", "psnr", "ms_ssim"])
+        return img_arr, spacing, origin, direction
+    else:
+        # If desired, force the orientation on an image before converting to NumPy array
+        if set_orientation is not None:
+            spacing, origin, direction = set_orientation
+            result.SetSpacing(spacing)
+            result.SetOrigin(origin)
+            result.SetDirection(direction)
 
-#         # init save sub-folders
-#         self.slice_pc_to_save = [25, 50, 75]
-#         for pc in self.slice_pc_to_save:
-#             save_path_pc = os.path.join(self.save_path, '{}pc_png'.format(pc))
-#             if not os.path.exists(save_path_pc):
-#                 os.makedirs(save_path_pc)
-#                 print('Make path: {}'.format(save_path_pc))
-
-#         # all 3d images for analysis
-#         self.save_path_all_3d_img = os.path.join(self.save_path, 'all_3d_img')
-#         if not os.path.exists(self.save_path_all_3d_img):
-#             os.makedirs(self.save_path_all_3d_img)
-
-#     def process_patients(self):
-#         for patient_id in tqdm(self.patient_ids):
-#             self.process_a_patient(patient_id)
-
-#     def analysis_patients(self):
-#         # save aggregated metrics
-#         dict_metric = self.test_metrics.aggregate()
-#         with open(os.path.join(self.save_path, 'results_overall_masked.json'), 'w') as f:
-#             json.dump(dict_metric, f, indent=4)
-
-#         # save individual metric
-#         df = pd.DataFrame(
-#             {
-#                 'patient_id': self.test_metrics.storage_id,
-#                 'mae': self.test_metrics.storage['mae'],
-#                 'ms_ssim': self.test_metrics.storage['ms_ssim'],
-#                 'psnr': self.test_metrics.storage['psnr'],
-#             }
-#         )
-#         df.to_csv(os.path.join(self.save_path, 'results_individual.csv'), index=True)
-#         print("mean mae:", dict_metric['mae']['mean'])
-#         print("mean psnr:", dict_metric['psnr']['mean'])
-#         print("mean ms_ssim:", dict_metric['ms_ssim']['mean'])
-    
-#     def process_a_patient(self, patient_id):
-#         pred_path = os.path.join(self.pred_path, f'{patient_id}.mha')
-#         src_path = os.path.join(self.raw_image_path, patient_id, 'mr.mha')
-#         gt_path = os.path.join(self.raw_image_path, patient_id, 'ct_deformed_padded.mha') #### to be changed; hand-coded here
-#         mask_path = os.path.join(self.raw_image_path, patient_id,  'mask.mha')
-
-#         # read images
-#         img_src = sitk.ReadImage(src_path)
-#         img_pred = sitk.ReadImage(pred_path, sitk.sitkFloat32)
-#         img_gt = sitk.ReadImage(gt_path, sitk.sitkFloat32)
-#         img_mask = sitk.ReadImage(mask_path, sitk.sitkUInt8)
-
-#         # compute scores
-#         array_src = sitk.GetArrayFromImage(img_src)
-#         array_pred = sitk.GetArrayFromImage(img_pred)
-#         array_gt = sitk.GetArrayFromImage(img_gt)
-#         array_mask = sitk.GetArrayFromImage(img_mask)
-#         res = self.test_metrics.score_patient(array_gt, array_pred, array_mask)
-#         self.test_metrics.add(res, patient_id)
-
-#         # save error images
-#         self._save_error_image(img_pred, img_gt, img_mask, patient_id)
-#         self._copy_images(pred_path, src_path, gt_path, mask_path, patient_id)
-
-#         # save_png_slice
-#         self._save_png_slice(array_src, array_pred, array_gt, array_mask, patient_id, pc=50)
-#         self._save_png_slice(array_src, array_pred, array_gt, array_mask, patient_id, pc=25)
-#         self._save_png_slice(array_src, array_pred, array_gt, array_mask, patient_id, pc=75)
-#         plt.close('all')
-    
-#     def _save_error_image(self, img_pred, img_gt, img_mask, patient_id):
-#         # save error images
-#         img_err = sitk.AbsoluteValueDifference(img_pred, img_gt)
-#         img_err = sitk.Mask(img_err, img_mask, outsideValue=0)
-#         img_err.CopyInformation(img_pred)
-#         sitk.WriteImage(img_err, os.path.join(self.save_path_all_3d_img, f'{patient_id}_error.mha'))
-#         # print('Save Error images: ', os.path.join(save_err_path, f'{patient_id}.mha'))
-    
-#     def _copy_images(self, pred_path, src_path, gt_path, mask_path, patient_id):
-#         shutil.copy(pred_path, os.path.join(self.save_path_all_3d_img, f'{patient_id}_pred.mha'))
-#         shutil.copy(src_path, os.path.join(self.save_path_all_3d_img, f'{patient_id}_src.mha'))
-#         shutil.copy(gt_path, os.path.join(self.save_path_all_3d_img, f'{patient_id}_gt.mha'))
-#         shutil.copy(mask_path, os.path.join(self.save_path_all_3d_img, f'{patient_id}_mask.mha'))
-
-#     def _save_png_slice(self, array_src, array_pred, array_gt, array_mask, patient_id, pc=50):
-#         # init parameters
-#         slice_a0 = int(array_gt.shape[0] * pc / 100)
-#         slice_a1 = int(array_gt.shape[1] * pc / 100)
-#         slice_a2 = int(array_gt.shape[2] * pc / 100)
-#         rows = []
-
-#         row_slices = [slice_a0, slice_a1, slice_a2]
-#         # axial images
-#         slice_a0_src = array_src[slice_a0, :, :]
-#         slice_a0_pred = array_pred[slice_a0, :, :]
-#         slice_a0_gt = array_gt[slice_a0, :, :]
-#         slice_a0_mask = array_mask[slice_a0, :, :]
-#         slice_a0_error = slice_a0_gt-slice_a0_pred
-#         slice_a0_error[~slice_a0_mask.astype('bool')] = 0
-#         row_0 = [slice_a0_src, slice_a0_pred, slice_a0_gt, slice_a0_mask, slice_a0_error]
-#         rows.append(row_0)
-#         # coronal images
-#         slice_a1_src = array_src[:, slice_a1, :]
-#         slice_a1_pred = array_pred[:, slice_a1, :]
-#         slice_a1_gt = array_gt[:, slice_a1, :]
-#         slice_a1_mask = array_mask[:, slice_a1, :]
-#         slice_a1_error = slice_a1_gt - slice_a1_pred
-#         slice_a1_error[~slice_a1_mask.astype('bool')] = 0
-#         row_1 = [slice_a1_src, slice_a1_pred, slice_a1_gt, slice_a1_mask, slice_a1_error]
-#         rows.append(row_1)
-#         # sagital images
-#         slice_a2_src = array_src[:, :, slice_a2]
-#         slice_a2_pred = array_pred[:, :, slice_a2]
-#         slice_a2_gt = array_gt[:, :, slice_a2]
-#         slice_a2_mask = array_mask[:, :, slice_a2]
-#         slice_a2_error = slice_a2_gt - slice_a2_pred
-#         slice_a2_error[~slice_a2_mask.astype('bool')] = 0
-#         row_2 = [slice_a2_src, slice_a2_pred, slice_a2_gt, slice_a2_mask, slice_a2_error]
-#         rows.append(row_2)
-#         # plot
-#         fig, ax = plt.subplots(3, len(row_0), figsize=(15, 10))
-#         for row in range(3):
-#             for col in range(len(row_0)):
-#                 if col < 4:
-#                     if col ==1 or col == 2:
-#                         ax[row, col].imshow(rows[row][col], cmap='gray', vmin=-1024, vmax=2000)
-#                     else:
-#                         ax[row, col].imshow(rows[row][col], cmap='gray')
-#                 else:
-#                     ax[row, col].imshow(rows[row][col], cmap='twilight_shifted')
-#                 ax[row, col].axis('off')
-#                 ax[row, col].set_title('{}_slice{}'.format(self.col_names[col], row_slices[row]))
-#         fig.subplots_adjust(wspace=0.05, top=0.8)
-#         save_path = os.path.join(self.save_path, '{}pc_png' .format(pc))
-#         if not os.path.exists(save_path):
-#             os.makedirs(save_path)
-#         fig.savefig(os.path.join(save_path, '{}.png'.format(patient_id)))
-#         # print('Save png slices: ', save_path)
-#         return fig
-
+        # Note, transpose needed because Numpy is ZYX according to SimpleITKs XYZ
+        return np.transpose(sitk.GetArrayFromImage(result), [2, 1, 0])
     
 
 

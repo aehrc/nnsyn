@@ -385,7 +385,10 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         # compute metrics
         gt_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_target')
         src_path = join(nnUNet_raw, self.plans_manager.dataset_name, 'imagesTr')
-        ts = FinalValidationResults(pred_path_revert_norm, gt_path, mask_path, src_path)
+        gt_segmentation_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_target_segmentation')
+        gt_segmentation_path = gt_segmentation_path if os.path.isdir(gt_segmentation_path) else None
+        
+        ts = FinalValidationResults(pred_path_revert_norm, gt_path, mask_path, src_path, gt_segmentation_path=gt_segmentation_path)
         dict_metric = ts.process_patients_mp()
         self.aim_run['final_mae_mean'] = np.round(dict_metric['mae']['mean'], decimals=4)
         self.aim_run['final_psnr_mean'] = np.round(dict_metric['psnr']['mean'], decimals=4)
@@ -395,6 +398,11 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         self.print_to_log_file(f'Final MAE: {self.aim_run["final_mae_mean"]}')
         self.print_to_log_file(f'Final PSNR: {self.aim_run["final_psnr_mean"]}')
         self.print_to_log_file(f'Final MS-SSIM: {self.aim_run["final_ms_ssim_mean"]}')
+        if gt_segmentation_path:
+            self.aim_run['final_DICE_mean'] = np.round(dict_metric['DICE']['mean'], decimals=4)
+            self.aim_run['final_HD95_mean'] = np.round(dict_metric['HD95']['mean'], decimals=4)
+            self.print_to_log_file(f'Final DICE: {self.aim_run["final_DICE_mean"]}')
+            self.print_to_log_file(f'Final HD95: {self.aim_run["final_HD95_mean"]}')
                 
         self.print_to_log_file('Final validation completed. Results saved to Aim. Exiting the process.')
         sys.exit(0)  # Exit the process after training ends
@@ -419,8 +427,12 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
 
         # compute metrics
         gt_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_target')
+        gt_segmentation_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_target_segmentation')
+        gt_segmentation_path = gt_segmentation_path if os.path.isdir(gt_segmentation_path) else None
+        # gt_segmentation_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_target_segmentation') if os.path.isdir(join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_segmentation')) else None
         src_path = join(nnUNet_raw, self.plans_manager.dataset_name, 'imagesTr')
-        ts = ValidationResults(pred_path_revert_norm, gt_path, mask_path, src_path)
+        print("gt_segmentation_path: ", gt_segmentation_path)
+        ts = ValidationResults(pred_path_revert_norm, gt_path, mask_path, src_path, gt_segmentation_path=gt_segmentation_path)
         dict_metric = ts.process_patients_mp()
         ts.aim_log_one_patient(self.aim_run, self.current_epoch, max_images=4)
         # log metrics using aim
@@ -435,6 +447,13 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         self.print_to_log_file(f'MAE: {np.round(dict_metric["mae"]["mean"], decimals=4)}')
         self.print_to_log_file(f'PSNR: {np.round(dict_metric["psnr"]["mean"], decimals=4)}')
         self.print_to_log_file(f'MS-SSIM: {np.round(dict_metric["ms_ssim"]["mean"], decimals=4)}')
+        if gt_segmentation_path:
+            self.aim_run.track(np.round(dict_metric['DICE']['mean'], decimals=4), \
+                               name="DICE_mean", context={"type": 'metrics'}, step=self.current_epoch)
+            self.aim_run.track(np.round(dict_metric['HD95']['mean'], decimals=4), \
+                               name="HD95_mean", context={"type": 'metrics'}, step=self.current_epoch)
+            self.print_to_log_file(f'DICE: {np.round(dict_metric["DICE"]["mean"], decimals=4)}')
+            self.print_to_log_file(f'HD95: {np.round(dict_metric["HD95"]["mean"], decimals=4)}')
 
     def init_call_resume(self):
         import signal
