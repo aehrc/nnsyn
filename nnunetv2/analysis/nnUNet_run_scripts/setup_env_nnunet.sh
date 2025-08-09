@@ -28,3 +28,8 @@ aim up --host 127.0.0.1 --port 43800 --repo /datasets/work/hb-synthrad2023/work/
 conda create --prefix /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/envs/simple_elastix python==3.13
 source activate /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/envs/simple_elastix
 pip install SimpleITK-SimpleElastix==2.5.0.dev49 # needs python version>=12
+
+conda create --prefix /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/envs/nnunet
+source activate /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/envs/nnunet
+module load cuda/11.8.0
+pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu118
