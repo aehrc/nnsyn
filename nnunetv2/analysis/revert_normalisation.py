@@ -51,7 +51,8 @@ def revert_normalisation(pred_path, ct_mean, ct_std, save_path=None, mask_path=N
         # print(f"Reverted saved to {os.path.join(save_path, os.path.basename(img))}")
     
 if __name__ == "__main__":
-    ct_plan_path = "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/preprocessed/Dataset203_synthrad2025_task1_CT/nnUNetPlans.json"
+    ct_plan_path = "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/preprocessed/Dataset251_synthrad2025_task1_CT_AB_pre_v2r_stitched_masked_synseg/nnUNetResEncUNetLPlans.json"
     ct_mean, ct_std = get_ct_normalisation_values(ct_plan_path)
-    pred_path = "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset202_synthrad2025_task1_MR_mask/nnUNetTrainerMRCT__nnUNetPlans__3d_fullres/fold_0/validation"
-    revert_normalisation(pred_path, ct_mean, ct_std, save_path=pred_path + "_revert_norm")
+    mask_path = "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/preprocessed/Dataset250_synthrad2025_task1_MR_AB_pre_v2r_stitched_masked_synseg/masks_real"
+    pred_path = "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset250_synthrad2025_task1_MR_AB_pre_v2r_stitched_masked_synseg/nnUNetTrainerMRCT_loss_seg__nnUNetResEncUNetLPlans__3d_fullres/fold_0/validation"
+    revert_normalisation(pred_path, ct_mean, ct_std, save_path=pred_path + "_revert_norm", mask_path=mask_path)

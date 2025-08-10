@@ -31,29 +31,64 @@ def makedirs_raw_dataset(dataset_data_path):
     os.makedirs(os.path.join(dataset_data_path, 'imagesTr'), exist_ok=True)
     os.makedirs(os.path.join(dataset_data_path, 'labelsTr'), exist_ok = True)
 
-# def process_file_masked(data_path, dataset_path, modality_suffix="_0000", outsideValue=0):
-#     curr_img = sitk.ReadImage(data_path)
-#     mask_img = sitk.ReadImage(data_path.replace('mr.mha', 'mask.mha'), sitk.sitkUInt8)
-#     mask_img = sitk.Cast(mask_img, sitk.sitkUInt8)
-#     # masked_image = sitk.Mask(image=curr_img, maskImage=mask_img, maskingValue=0, outsideValue=outsideValue)
+def get_classes_to_use(region:str):
+    classes_to_use = {
+            "AB": [
+                2, # kidney right
+                3, # kidney left
+                5, # liver
+                6, # stomach
+                *range(10, 14+1), #lungs
+                *range(26, 50+1), #vertebrae
+                51, #heart
+                79, # spinal cord
+                *range(92, 115+1), # ribs
+                116 #sternum
+            ],
+            "HN": [
+                15, # esophagus
+                16, # trachea
+                17, # thyroid
+                *range(26, 50+1), #vertebrae
+                79, #spinal cord
+                90, # brain
+                91, # skull
+            ],
+            "TH": [
+                2, # kidney right
+                3, # kidney left
+                5, # liver
+                6, # stomach
+                *range(10, 14+1), #lungs
+                *range(26, 50+1), #vertebrae
+                51, #heart
+                79, # spinal cord
+                *range(92, 115+1), # ribs
+                116 #sternum
+            ]
+        }
+    return classes_to_use[region]
 
-#     # values in the mask different from maskingValue are copied over, all other values are set to outsideValue
-#     filename = data_path.split(os.sep)[-2]
-#     if not filename.endswith(f'{modality_suffix}.mha'):
-#         filename = filename + f'{modality_suffix}.mha'
-#     sitk.WriteImage(masked_image, os.path.join(dataset_path, f'imagesTr/{filename}'))
+def process_segmentation_file(data_path, dataset_path,label_to_use: list):
+    filename = data_path.split(os.sep)[-2]
+    if not filename.endswith('.mha'):
+        filename = filename + '.mha'
+    shutil.copy(data_path, os.path.join(dataset_path, f'labelsTr/{filename}'))
 
-#     data = sitk.GetArrayFromImage(curr_img)
-#     data = np.ones_like(data)
-
-#     filename = filename.replace(modality_suffix, '')  # Remove modality suffix for masks
-#     label_path = os.path.join(dataset_path, f'labelsTr/{filename}')
-#     if not os.path.exists(label_path):
-#         label_img = sitk.GetImageFromArray(data)
-#         label_img.SetDirection(curr_img.GetDirection())
-#         label_img.SetOrigin(curr_img.GetOrigin())
-#         label_img.SetSpacing(curr_img.GetSpacing())
-#         sitk.WriteImage(label_img, label_path)
+    # Load the segmentation file
+    seg_image = sitk.ReadImage(os.path.join(dataset_path, f'labelsTr/{filename}'))
+    seg_array = sitk.GetArrayFromImage(seg_image)
+    new_seg_array = np.zeros_like(seg_array, dtype=seg_array.dtype)
+    new_seg_array[seg_array != 0] = -1  # Initialize all non-background voxels to -1
+    for i, label in enumerate(label_to_use):
+        new_seg_array[seg_array == label] = i + 1
+    # Filter the segmentation to keep only the classes of interest
+    # All voxels not in label_to_use will be set to 0 (background)
+    
+    # Save the filtered segmentation back
+    filtered_seg_image = sitk.GetImageFromArray(new_seg_array)
+    filtered_seg_image.CopyInformation(seg_image)
+    sitk.WriteImage(filtered_seg_image, os.path.join(dataset_path, f'labelsTr/{filename}'))
 
 def process_file(data_path, dataset_path, modality_suffix="_0000", outsideValue=0):
     curr_img = sitk.ReadImage(data_path)

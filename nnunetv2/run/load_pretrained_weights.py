@@ -1,6 +1,7 @@
 import torch
 from torch._dynamo import OptimizedModule
 from torch.nn.parallel import DistributedDataParallel as DDP
+import numpy
 
 
 def load_pretrained_weights(network, fname, verbose=False):
@@ -15,6 +16,7 @@ def load_pretrained_weights(network, fname, verbose=False):
     nnUNetTrainer.save_checkpoint takes care of that!
 
     """
+    torch.serialization.add_safe_globals([numpy.core.multiarray.scalar, numpy.dtype, numpy.dtypes.Float32DType])
     saved_model = torch.load(fname)
     pretrained_dict = saved_model['network_weights']
 

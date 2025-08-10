@@ -56,7 +56,7 @@ class ValidationResults():
             self.seg_metrics = SegmentationMetricsCompute()
             self.seg_metrics.init_storage(["DICE", "HD95"])
     
-    def process_patients_mp(self):
+    def process_patients_mp(self, max_workers=8):
         """
         Process patients in parallel using ThreadPoolExecutor.
         This method is used to speed up the processing of multiple patients.
@@ -64,7 +64,7 @@ class ValidationResults():
         from concurrent.futures import ThreadPoolExecutor
         from tqdm import tqdm
 
-        with ThreadPoolExecutor() as executor:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
             list(tqdm(executor.map(self.process_a_patient, self.patient_ids), total=len(self.patient_ids)))
         
         dict_metric = self.analysis_patients()
@@ -381,10 +381,21 @@ if __name__ == '__main__':
     # print("mean psnr:", results['psnr']['mean'])
     # print("mean ms_ssim:", results['ms_ssim']['mean'])
 
-    input_path = "/datasets/work/hb-synthrad2023/source/synthrad2025_data_v2/synthRAD2025_Task1_Train/Task1/AB" # contain p_id/ct.mha, mask.mha, mr.mha
-    pred_path_revert_norm = "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset340_synthrad2025_task1_MR_AB_mednext/nnUNetTrainerV2_MedNeXt_L_kernel5__nnUNetPlans__3d_fullres/fold_0/validation_revert_norm"
-    vs = TestingResults(pred_path_revert_norm, task=1, region='AB')
-    vs.process_a_patient('1ABA011')
-    # vs.process_patients()
+    nnUNet_preprocessed = "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/preprocessed"
+    nnUNet_raw = "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/raw"
+    nnUNet_results = "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results"
+    
+    dataset_name = "Dataset260_synthrad2025_task1_MR_AB_pre_v2r_stitched_masked"
+    pred_path_revert_norm = os.path.join(nnUNet_results, dataset_name, "nnUNetTrainerMRCT_loss_masked__nnUNetResEncUNetLPlans__3d_fullres/fold_0/validation_revert_norm")
+
+    gt_path = os.path.join(nnUNet_preprocessed, dataset_name, "gt_target")
+    mask_path = os.path.join(nnUNet_preprocessed, dataset_name, "masks_real")
+    gt_segmentation_path = os.path.join(nnUNet_preprocessed, dataset_name, "gt_target_segmentation_ts")
+    # gt_segmentation_path = None
+    src_path = os.path.join(nnUNet_raw, dataset_name, 'imagesTr')
+
+    ts = ValidationResults(pred_path_revert_norm, gt_path, mask_path, src_path, gt_segmentation_path=gt_segmentation_path)
+    # ts.process_a_patient('1ABA011')
+    ts.process_patients_mp()
 
 

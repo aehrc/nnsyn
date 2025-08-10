@@ -379,13 +379,15 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
 
         pred_path = join(self.output_folder, 'validation')
         pred_path_revert_norm = pred_path + "_revert_norm"
-        mask_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'masks')
+        mask_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'masks_real')
+        mask_path = mask_path.replace('masks_real', 'masks') if not os.path.isdir(mask_path) else mask_path
+        print('=====> mask_path:', mask_path)
         revert_normalisation(pred_path, ct_mean, ct_std, save_path=pred_path_revert_norm, mask_path=mask_path, mask_outside_value=-1000)
 
         # compute metrics
         gt_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_target')
         src_path = join(nnUNet_raw, self.plans_manager.dataset_name, 'imagesTr')
-        gt_segmentation_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_target_segmentation')
+        gt_segmentation_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_target_segmentation_ts')
         gt_segmentation_path = gt_segmentation_path if os.path.isdir(gt_segmentation_path) else None
         
         ts = FinalValidationResults(pred_path_revert_norm, gt_path, mask_path, src_path, gt_segmentation_path=gt_segmentation_path)
@@ -422,12 +424,14 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         pred_path = join(self.output_folder, 'validation')
         pred_path_revert_norm = pred_path + "_revert_norm"
         # use masked image after revert normalisation
-        mask_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'masks')
+        mask_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'masks_real')
+        mask_path = mask_path.replace('masks_real', 'masks') if not os.path.isdir(mask_path) else mask_path
+        print('=====> mask_path:', mask_path)
         revert_normalisation(pred_path, ct_mean, ct_std, save_path=pred_path_revert_norm, mask_path=mask_path, mask_outside_value=-1000)
 
         # compute metrics
         gt_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_target')
-        gt_segmentation_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_target_segmentation')
+        gt_segmentation_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_target_segmentation_ts')
         gt_segmentation_path = gt_segmentation_path if os.path.isdir(gt_segmentation_path) else None
         # gt_segmentation_path = join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_target_segmentation') if os.path.isdir(join(nnUNet_preprocessed, self.plans_manager.dataset_name, 'gt_segmentation')) else None
         src_path = join(nnUNet_raw, self.plans_manager.dataset_name, 'imagesTr')
