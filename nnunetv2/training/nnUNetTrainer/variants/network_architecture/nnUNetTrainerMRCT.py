@@ -341,6 +341,19 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         else:
             self.aim_run['task'] = 'Unknown'
 
+    def _get_region_name(self) -> str:
+        """
+        Returns the region name for the loss function.
+        """
+        if '_AB_' in self.plans_manager.dataset_name:
+            return 'AB'
+        elif '_TH_' in self.plans_manager.dataset_name:
+            return 'TH'
+        elif '_HN_' in self.plans_manager.dataset_name:
+            return 'HN'
+        else:
+            raise ValueError("Unknown region in dataset name: {}".format(self.plans_manager.dataset_name))
+    
     def on_epoch_end(self):
         super().on_epoch_end()
         self.aim_run.track(np.round(self.logger.my_fantastic_logging['train_losses'][-1], decimals=4), \

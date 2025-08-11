@@ -118,8 +118,8 @@ class ResidualEncoderUNet(nn.Module):
     #     skips = self.encoder(x)
     #     return self.decoder(skips)
     def forward(self, x):
-        skips, encoder_feature_maps = self.encoder(x)  # Now encoder also returns the feature maps
-        decoder_feature_maps = self.decoder(skips)  # Decoder outputs
+        encoder_feature_maps = self.encoder(x)  # Now encoder also returns the feature maps
+        decoder_feature_maps = self.decoder(encoder_feature_maps)  # Decoder outputs
         return encoder_feature_maps + decoder_feature_maps  # Return encoder and decoder feature maps
 
     def compute_conv_feature_map_size(self, input_size):

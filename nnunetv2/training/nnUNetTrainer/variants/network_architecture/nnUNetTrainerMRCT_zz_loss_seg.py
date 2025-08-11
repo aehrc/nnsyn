@@ -51,18 +51,7 @@ class nnUNetTrainerMRCT_loss_seg(nnUNetTrainerMRCT_loss_masked):
 
         return loss
     
-    def _get_region_name(self) -> str:
-        """
-        Returns the region name for the loss function.
-        """
-        if '_AB_' in self.plans_manager.dataset_name:
-            return 'AB'
-        elif '_TH_' in self.plans_manager.dataset_name:
-            return 'TH'
-        elif '_HN_' in self.plans_manager.dataset_name:
-            return 'HN'
-        else:
-            raise ValueError("Unknown region in dataset name: {}".format(self.plans_manager.dataset_name))
+    
 
     def train_step(self, batch: dict) -> dict:
         outputs = super().train_step(batch)
@@ -100,5 +89,23 @@ class nnUNetTrainerMRCT_loss_seg_weight_0_8(nnUNetTrainerMRCT_loss_masked):
         self.num_epochs = 1000
         self.decoder_type = "standard"
         self.image_loss_weight = 0.8
+
+
+class nnUNetTrainerMRCT_loss_seg_weight_1(nnUNetTrainerMRCT_loss_masked):
+    def __init__(
+        self,
+        plans: dict,
+        configuration: str,
+        fold: int,
+        dataset_json: dict,
+        unpack_dataset: bool = True,
+        device: torch.device = torch.device("cuda")
+    ):
+        super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
+        self.enable_deep_supervision = False
+        self.num_iterations_per_epoch = 250
+        self.num_epochs = 1000
+        self.decoder_type = "standard"
+        self.image_loss_weight = 1
 
 

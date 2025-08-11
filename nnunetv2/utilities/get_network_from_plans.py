@@ -44,3 +44,23 @@ def get_network_from_plans(arch_class_name, arch_kwargs, arch_kwargs_req_import,
         network.apply(network.initialize)
 
     return network
+
+def get_network_from_plans_and_class(nw_class, arch_kwargs, arch_kwargs_req_import, input_channels, output_channels,
+                           allow_init=True, deep_supervision: Union[bool, None] = None, decoder_type: str = "standard"):
+    architecture_kwargs = dict(**arch_kwargs)
+    for ri in arch_kwargs_req_import:
+        if architecture_kwargs[ri] is not None:
+            architecture_kwargs[ri] = pydoc.locate(architecture_kwargs[ri])
+
+    # sometimes things move around, this makes it so that we can at least recover some of that
+    
+    network = nw_class(
+        input_channels=input_channels,
+        num_classes=output_channels,
+        **architecture_kwargs
+    )
+
+    if hasattr(network, 'initialize') and allow_init:
+        network.apply(network.initialize)
+
+    return network
