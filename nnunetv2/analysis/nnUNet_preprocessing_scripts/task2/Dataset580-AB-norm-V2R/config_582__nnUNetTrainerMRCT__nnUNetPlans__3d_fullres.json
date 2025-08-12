@@ -1,0 +1,19 @@
+{
+    "dataset_id": 582,
+    "dataset_data_name": "synthrad2025_task2_CBCT_HN_pre_v2r_stitched",
+    "dataset_target_name": "synthrad2025_task2_CT_HN_pre_v2r_stitched",
+    "data_root": "/datasets/work/hb-synthrad2023/source/synthrad2025_data_v2r/synthRAD2025_Task2_Train/Task2/HN",
+    "preprocessing_CT": "CT_zscore_synthrad",
+    "preprocessing_CBCT": "CT_zscore_synthrad",
+    "preprocessing_mask": "masked",
+    "fold": 0,
+    "configuration": "3d_fullres",
+    "trainer": "nnUNetTrainerMRCT",
+    "plan": "nnUNetPlans",
+    "task": 2,
+    "region": "HN",
+    "save_path": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/ref/nnUNet_translation/nnunetv2/analysis/nnUNet_preprocessing_scripts/task2/Dataset580-AB-norm-V2R/config_582__nnUNetTrainerMRCT__nnUNetPlans__3d_fullres.json",
+    "nnUNet_raw": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/raw",
+    "nnUNet_preprocessed": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/preprocessed",
+    "nnUNet_results": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results"
+}

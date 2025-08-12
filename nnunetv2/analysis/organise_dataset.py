@@ -90,7 +90,7 @@ def process_segmentation_file(data_path, dataset_path,label_to_use: list):
     filtered_seg_image.CopyInformation(seg_image)
     sitk.WriteImage(filtered_seg_image, os.path.join(dataset_path, f'labelsTr/{filename}'))
 
-def process_file(data_path, dataset_path, modality_suffix="_0000", outsideValue=0):
+def process_file(data_path, dataset_path, modality_suffix="_0000"):
     curr_img = sitk.ReadImage(data_path)
     filename = data_path.split(os.sep)[-2]
     if not filename.endswith(f'{modality_suffix}.mha'):
