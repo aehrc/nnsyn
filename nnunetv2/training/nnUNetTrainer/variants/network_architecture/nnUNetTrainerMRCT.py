@@ -387,7 +387,12 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         self.network.train()
         # revert normalisation
         dataset_id = int(self.plans_manager.dataset_name.split('_')[0].replace('Dataset', ''))
-        ct_plan_path = f"{nnUNet_preprocessed}/{self.plans_manager.dataset_name.replace('_MR_', '_CT_').replace(str(dataset_id), str(dataset_id+1))}/{self.plans_manager.plans_name}.json"
+        if self.aim_run['task'] == '1':
+            ct_plan_path = f"{nnUNet_preprocessed}/{self.plans_manager.dataset_name.replace('_MR_', '_CT_').replace(str(dataset_id), str(dataset_id+1))}/{self.plans_manager.plans_name}.json"
+        elif self.aim_run['task'] == '2':
+            ct_plan_path = f"{nnUNet_preprocessed}/{self.plans_manager.dataset_name.replace('_CBCT_', '_CT_').replace(str(dataset_id), str(dataset_id+1))}/{self.plans_manager.plans_name}.json"
+        else:
+            raise ValueError(f"Unknown task {self.aim_run['task']} in dataset name {self.plans_manager.dataset_name}. Cannot determine CT plan path.")
         ct_mean, ct_std = get_ct_normalisation_values(ct_plan_path)
 
         pred_path = join(self.output_folder, 'validation')
@@ -418,6 +423,11 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
             self.aim_run['final_HD95_mean'] = np.round(dict_metric['HD95']['mean'], decimals=4)
             self.print_to_log_file(f'Final DICE: {self.aim_run["final_DICE_mean"]}')
             self.print_to_log_file(f'Final HD95: {self.aim_run["final_HD95_mean"]}')
+
+        # save dict_metric results to pred_path as summary.json
+        summary_path = join(pred_path, 'summary.json')
+        with open(summary_path, 'w') as f:
+            json.dump(dict_metric, f, indent=4)
                 
         self.print_to_log_file('Final validation completed. Results saved to Aim. Exiting the process.')
         sys.exit(0)  # Exit the process after training ends
@@ -431,7 +441,13 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         self.network.train()
         # revert normalisation
         dataset_id = int(self.plans_manager.dataset_name.split('_')[0].replace('Dataset', ''))
-        ct_plan_path = f"{nnUNet_preprocessed}/{self.plans_manager.dataset_name.replace('_MR_', '_CT_').replace(str(dataset_id), str(dataset_id+1))}/{self.plans_manager.plans_name}.json"
+        if self.aim_run['task'] == '1':
+            ct_plan_path = f"{nnUNet_preprocessed}/{self.plans_manager.dataset_name.replace('_MR_', '_CT_').replace(str(dataset_id), str(dataset_id+1))}/{self.plans_manager.plans_name}.json"
+        elif self.aim_run['task'] == '2':
+            ct_plan_path = f"{nnUNet_preprocessed}/{self.plans_manager.dataset_name.replace('_CBCT_', '_CT_').replace(str(dataset_id), str(dataset_id+1))}/{self.plans_manager.plans_name}.json"
+        else:
+            raise ValueError(f"Unknown task {self.aim_run['task']} in dataset name {self.plans_manager.dataset_name}. Cannot determine CT plan path.")
+        
         ct_mean, ct_std = get_ct_normalisation_values(ct_plan_path)
 
         pred_path = join(self.output_folder, 'validation')

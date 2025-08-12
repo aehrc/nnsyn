@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1
 #SBATCH --signal=USR1@360
-#SBATCH --output=logs/R-%x.%j-data262.out
+#SBATCH --output=logs/R-%x.%j-data584.out
 #SBATCH --open-mode=append
 
 
@@ -32,13 +32,15 @@ export nnUNet_results="/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workp
 
 
 # unet models
-# srun nnUNetv2_train 284 3d_fullres 4 -tr nnUNetTrainerMRCT_track
+# srun nnUNetv2_train 584 3d_fullres 0 -tr nnUNetTrainerMRCT_track --c
 # srun nnUNetv2_train 284 3d_fullres 0 -tr nnUNetTrainerMRCT_1500epochs
 # srun nnUNetv2_train 290 3d_fullres 0 -tr nnUNetTrainerMRCT_track -p nnUNetResEncUNetLPlans --c
 # srun nnUNetv2_train 270 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked
 # srun nnUNetv2_train 264 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked -p nnUNetResEncUNetLPlans --c
 # srun nnUNetv2_train 264 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked_perception -p nnUNetResEncUNetLPlans --c
-srun nnUNetv2_train 264 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked_perception_L2 -p nnUNetResEncUNetLPlans --c
+# srun nnUNetv2_train 264 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked_perception_L2_imglossweight0_7 -p nnUNetResEncUNetLPlans --c
+srun nnUNetv2_train 260 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked_perception_L2_SSIM -p nnUNetResEncUNetLPlans --c
+# srun nnUNetv2_train 264 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked_perception_masked -p nnUNetResEncUNetLPlans --c
 
 
 
