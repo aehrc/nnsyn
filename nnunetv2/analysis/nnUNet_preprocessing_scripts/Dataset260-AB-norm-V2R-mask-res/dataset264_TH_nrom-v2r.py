@@ -41,9 +41,12 @@ if __name__ == '__main__':
     list_data_mri = sorted(glob.glob(os.path.join(config["data_root"], '**','mr.mha'), recursive=True))
     list_data_mask = sorted(glob.glob(os.path.join(config["data_root"], '**','mask.mha'), recursive=True))
     list_data_ct = sorted(glob.glob(os.path.join(config["data_root"], '**','ct_stitched_resampled.mha'), recursive=True))
+    list_gt_target_segmentation_ts = sorted(glob.glob(os.path.join(config["data_root"], '**','segmentation_ct_stitched_resampled.mha'), recursive=True))
+
     print("input1 ---", len(list_data_mri), list_data_mri[:2])
     print("input2 ---", len(list_data_mask), list_data_mask[:2])
     print("target ---", len(list_data_ct), list_data_ct[:2])
+    print("gt target seg ts---", len(list_gt_target_segmentation_ts), list_gt_target_segmentation_ts[:2])
 
     ## Define dataset ID and make paths
     dataset_id = config["dataset_id"]
@@ -89,7 +92,9 @@ if __name__ == '__main__':
 
 
     # move preprocessed targets to data
-
+    dataset_target_path2 = os.path.join(os.environ['nnUNet_preprocessed'], f'Dataset{dataset_id:03d}_{dataset_data_name}', 'gt_target_segmentation_ts')
+    move_gt_target(list_gt_target_segmentation_ts, dataset_target_path2)
+    
     nnunet_datas_preprocessed_dir = os.path.join(os.environ['nnUNet_preprocessed'], f'Dataset{dataset_id+1:03d}_{dataset_target_name}') 
     nnunet_targets_preprocessed_dir = os.path.join(os.environ['nnUNet_preprocessed'], f'Dataset{dataset_id:03d}_{dataset_data_name}') 
     move_preprocessed(nnunet_datas_preprocessed_dir, nnunet_targets_preprocessed_dir, f'nnUNetPlans_3d_fullres')
