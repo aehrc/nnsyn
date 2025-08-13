@@ -116,6 +116,31 @@ class nnUNetTrainerMRCT_loss_masked(nnUNetTrainerMRCT_track):
             self.optimizer.step()
         return {'loss': l.detach().cpu().numpy()}
     
+
+    def validation_step(self, batch: dict) -> dict:
+        data = batch['data']
+        target = batch['target']
+        mask = batch['mask']
+
+        data = data.to(self.device, non_blocking=True)
+        mask = mask.to(self.device, non_blocking=True)
+        if isinstance(target, list):
+            target = [i.to(self.device, non_blocking=True) for i in target]
+        else:
+            target = target.to(self.device, non_blocking=True)
+
+        with autocast(self.device.type, enabled=True) if self.device.type == 'cuda' else dummy_context():
+            output = self.network(data)
+            # torch.save(data, "data")
+            # torch.save(output, "output")
+            # torch.save(target, "target")
+
+            del data
+            l = self.loss(output, target, mask=mask)
+
+        return {'loss': l.detach().cpu().numpy(), 'tp_hard': 0, 'fp_hard': 0, 'fn_hard': 0}
+
+    
     @staticmethod
     def get_validation_transforms(
             deep_supervision_scales: Union[List, Tuple, None],
