@@ -1,0 +1,20 @@
+{
+    "dataset_id": 244,
+    "dataset_data_name": "synthrad2025_task1_MR_TH_pre_v2r_stitched_masked_both",
+    "dataset_target_name": "synthrad2025_task1_CT_TH_pre_v2r_stitched_masked_both",
+    "data_root": "/datasets/work/hb-synthrad2023/source/synthrad2025_data_v2r/synthRAD2025_Task1_Train/Task1/TH",
+    "preprocessing_CT": "CT_zscore_synthrad",
+    "preprocessing_MRI": "MR",
+    "preprocessing_mask": "masked",
+    "fold": 0,
+    "configuration": "3d_fullres",
+    "trainer": "nnUNetTrainerMRCT_loss_masked",
+    "planner_class": "nnUNetPlannerResEncL",
+    "plan": "nnUNetResEncUNetLPlans",
+    "task": 1,
+    "region": "TH",
+    "save_path": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/ref/nnUNet_translation/nnunetv2/analysis/nnUNet_preprocessing_scripts/Dataset240-AB-norm-V2R-mask-res-maskednorm/config_244__nnUNetTrainerMRCT_loss_masked__nnUNetResEncUNetLPlans__3d_fullres.json",
+    "nnUNet_raw": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/raw",
+    "nnUNet_preprocessed": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/preprocessed",
+    "nnUNet_results": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results"
+}
