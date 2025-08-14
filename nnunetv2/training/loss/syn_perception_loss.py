@@ -21,16 +21,17 @@ from nnunetv2.training.loss.ssim_losses import SSIMLoss
 
 
 class SynPerceptionLoss(nn.Module):
-    def __init__(self, region: str, image_loss_weight: float = 0.5, perception_masked=False):
+    def __init__(self, task: str, region: str, image_loss_weight: float = 0.5, perception_masked=False):
         """
         Initializes the SynSegLoss module.
         region can be "AB", "HN", or "TH" to specify the anatomical region.
         """
         super(SynPerceptionLoss, self).__init__()
         self.region = region
+        self.task = task
 
         # load the trained segmentor model
-        self.seg_model, self.seg_model_info = self._load_trained_segmentor(region)
+        self.seg_model, self.seg_model_info = self._load_trained_segmentor(task, region)
         self.seg_model.eval()
         for param in self.seg_model.parameters(): 
             param.requires_grad = False
@@ -48,16 +49,21 @@ class SynPerceptionLoss(nn.Module):
         self.cur_seg_loss = 0.0
         self.cur_img_loss = 0.0
     
-    
-    
-    def _load_trained_segmentor(self, region: str):
+
+
+    def _load_trained_segmentor(self, task: str, region: str):
         segmentor_training_output_dir = {
-            "AB": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset800_SEGMENTATION_synthrad2025_task1_CT_AB_aligned_to_Dataset261/nnUNetTrainer__nnUNetResEncUNetLPlans_Dataset261__3d_fullres",
-            "HN": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset801_SEGMENTATION_synthrad2025_task1_CT_HN_aligned_to_Dataset263/nnUNetTrainer__nnUNetResEncUNetLPlans_Dataset263__3d_fullres",
-            "TH": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset802_SEGMENTATION_synthrad2025_task1_CT_TH_aligned_to_Dataset265/nnUNetTrainer__nnUNetResEncUNetLPlans_Dataset265__3d_fullres"
+            "1":
+                {"AB": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset800_SEGMENTATION_synthrad2025_task1_CT_AB_aligned_to_Dataset261/nnUNetTrainer__nnUNetResEncUNetLPlans_Dataset261__3d_fullres",
+                "HN": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset801_SEGMENTATION_synthrad2025_task1_CT_HN_aligned_to_Dataset263/nnUNetTrainer__nnUNetResEncUNetLPlans_Dataset263__3d_fullres",
+                "TH": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset802_SEGMENTATION_synthrad2025_task1_CT_TH_aligned_to_Dataset265/nnUNetTrainer__nnUNetResEncUNetLPlans_Dataset265__3d_fullres"},
+            "2":
+                {"AB": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset810_SEGMENTATION_synthrad2025_task2_CT_AB_aligned_to_Dataset541/nnUNetTrainer__nnUNetResEncUNetLPlans_Dataset541__3d_fullres",
+                "HN": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset811_SEGMENTATION_synthrad2025_task2_CT_HN_aligned_to_Dataset543/nnUNetTrainer__nnUNetResEncUNetLPlans_Dataset543__3d_fullres",
+                "TH": "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset812_SEGMENTATION_synthrad2025_task2_CT_TH_aligned_to_Dataset545/nnUNetTrainer__nnUNetResEncUNetLPlans_Dataset545__3d_fullres"},
         }
         # model_training_output_dir = '/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/ref/evaluation/.totalsegmentator/nnunet/results/Dataset297_TotalSegmentator_total_3mm_1559subj/nnUNetTrainer_4000epochs_NoMirroring__nnUNetPlans__3d_fullres'
-        model_training_output_dir = segmentor_training_output_dir[region]
+        model_training_output_dir = segmentor_training_output_dir[task][region]
         checkpoint_name = 'checkpoint_final.pth'
         dataset_json = load_json(join(model_training_output_dir, 'dataset.json'))
         plans = load_json(join(model_training_output_dir, 'plans.json'))

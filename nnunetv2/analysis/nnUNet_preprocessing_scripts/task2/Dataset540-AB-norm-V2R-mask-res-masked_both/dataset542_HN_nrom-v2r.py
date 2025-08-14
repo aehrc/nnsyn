@@ -106,6 +106,7 @@ if __name__ == '__main__':
     move_gt_target(list_data_ct, dataset_target_path2)
 
     list_gt_target_segmentation_ts = sorted(glob.glob(os.path.join(config["data_root"], '**','segmentation_ct_stitched_resampled.mha'), recursive=True))
+    print("gt_target_segmentation_ts ---", len(list_gt_target_segmentation_ts), list_gt_target_segmentation_ts[:2])
     dataset_target_path2 = os.path.join(os.environ['nnUNet_preprocessed'], f'Dataset{dataset_id:03d}_{dataset_data_name}', 'gt_target_segmentation_ts')
     move_gt_target(list_gt_target_segmentation_ts, dataset_target_path2)
     # train the network

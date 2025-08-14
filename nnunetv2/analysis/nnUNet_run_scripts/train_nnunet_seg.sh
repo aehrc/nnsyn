@@ -2,13 +2,13 @@
 
 #SBATCH --account=OD-218779
 #SBATCH --job-name=train-seg
-#SBATCH --time=24:00:00
+#SBATCH --time=25:00:00
 #SBATCH --ntasks=1
 #SBATCH --mem=80gb
 #SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1
 #SBATCH --signal=USR1@360
-#SBATCH --output=logs/R-%x.%j-data802.out
+#SBATCH --output=logs/R-%x.%j-data804.out
 #SBATCH --open-mode=append
 
 
@@ -30,4 +30,5 @@ export nnUNet_results="/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workp
 
 
 ## segmentation models
-srun nnUNetv2_train 801 3d_fullres 0 -tr nnUNetTrainer -p nnUNetResEncUNetLPlans_Dataset263 --c
+# srun nnUNetv2_train 806 3d_fullres 0 -tr nnUNetTrainer -p nnUNetResEncUNetLPlans_Dataset265 --c
+srun nnUNetv2_train 812 3d_fullres 0 -tr nnUNetTrainer -p nnUNetResEncUNetLPlans_Dataset545 --c

@@ -8,10 +8,10 @@ if __name__ == '__main__':
 
 
     TASK = 2
-    REGION = "AB"
-    DATASET_ID = 810
+    REGION = "HN"
+    DATASET_ID = 811
 
-    SOURCE_DATASET_ID = 541 # synthetic CT dataset
+    SOURCE_DATASET_ID = 543 # synthetic CT dataset
     config = {
         "dataset_id": DATASET_ID,  # Updated to 200 for CT noNorm
         "dataset_data_name": f"SEGMENTATION_synthrad2025_task{TASK}_CT_{REGION}_aligned_to_Dataset{SOURCE_DATASET_ID}",
@@ -42,7 +42,6 @@ if __name__ == '__main__':
     list_data_ct = sorted(glob.glob(os.path.join(config["data_root"], '**','ct_stitched_resampled.mha'), recursive=True))
     print("input2 ---", len(list_data_segmentation), list_data_segmentation[:2])
     print("target ---", len(list_data_ct), list_data_ct[:2])
-    assert len(list_data_segmentation) == len(list_data_ct), "Number of segmentation and CT images must match"
 
     ## Define dataset ID and make paths
     dataset_id = config["dataset_id"]

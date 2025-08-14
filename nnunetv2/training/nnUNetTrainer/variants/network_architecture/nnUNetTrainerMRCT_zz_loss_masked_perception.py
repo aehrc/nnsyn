@@ -48,8 +48,9 @@ class nnUNetTrainerMRCT_loss_masked_perception(nnUNetTrainerMRCT_loss_masked):
 
     def _build_loss(self):
         # loss = myMSE()
+        task = self._get_task_name()
         region = self._get_region_name()
-        loss= SynPerceptionLoss(region=region, image_loss_weight=self.image_loss_weight)
+        loss= SynPerceptionLoss(task=task, region=region, image_loss_weight=self.image_loss_weight)
         return loss
     
     # track losses
@@ -108,8 +109,9 @@ class nnUNetTrainerMRCT_loss_masked_perception_masked(nnUNetTrainerMRCT_loss_mas
 
     def _build_loss(self):
         # loss = myMSE()
+        task = self._get_task_name()
         region = self._get_region_name()
-        loss= SynPerceptionLoss(region=region, image_loss_weight=self.image_loss_weight, perception_masked=self.perception_masked)
+        loss= SynPerceptionLoss(task=task, region=region, image_loss_weight=self.image_loss_weight, perception_masked=self.perception_masked)
         return loss
 
 class nnUNetTrainerMRCT_loss_masked_perception_masked_continue_500epochs(nnUNetTrainerMRCT_loss_masked_perception_masked):
@@ -137,8 +139,9 @@ class nnUNetTrainerMRCT_loss_masked_perception_L2(nnUNetTrainerMRCT_loss_masked_
 
     def _build_loss(self):
         # loss = myMSE()
+        task = self._get_task_name()
         region = self._get_region_name()
-        loss= SynPerceptionLoss_L2(region=region, image_loss_weight=self.image_loss_weight)
+        loss= SynPerceptionLoss_L2(task=task, region=region, image_loss_weight=self.image_loss_weight)
         return loss
     
 class nnUNetTrainerMRCT_loss_masked_perception_L2_imglossweight0_7(nnUNetTrainerMRCT_loss_masked_perception_L2):

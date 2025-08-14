@@ -353,6 +353,17 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
             return 'HN'
         else:
             raise ValueError("Unknown region in dataset name: {}".format(self.plans_manager.dataset_name))
+
+    def _get_task_name(self) -> str:
+        """
+        Returns the task name for the loss function.
+        """
+        if '_task1_' in self.plans_manager.dataset_name:
+            return '1'
+        elif '_task2_' in self.plans_manager.dataset_name:
+            return '2'
+        else:
+            raise ValueError("Unknown task in dataset name: {}".format(self.plans_manager.dataset_name))
     
     def on_epoch_end(self):
         super().on_epoch_end()

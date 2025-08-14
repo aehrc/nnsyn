@@ -385,8 +385,8 @@ if __name__ == '__main__':
     nnUNet_raw = "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/raw"
     nnUNet_results = "/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results"
     
-    dataset_name = "Dataset280_synthrad2025_task1_MR_AB_pre_v2r_stitched"
-    pred_path_revert_norm = os.path.join(nnUNet_results, dataset_name, "nnUNetTrainerMRCT_track__nnUNetPlans__3d_fullres/fold_0/validation_revert_norm")
+    dataset_name = "Dataset540_synthrad2025_task2_CBCT_AB_pre_v2r_stitched_masked_both"
+    pred_path_revert_norm = os.path.join(nnUNet_results, dataset_name, "nnUNetTrainerMRCT_loss_masked_perception_masked__nnUNetResEncUNetLPlans__3d_fullres/fold_0/validation_revert_norm")
 
     gt_path = os.path.join(nnUNet_preprocessed, dataset_name, "gt_target")
     mask_path = os.path.join(nnUNet_preprocessed, dataset_name, "masks")

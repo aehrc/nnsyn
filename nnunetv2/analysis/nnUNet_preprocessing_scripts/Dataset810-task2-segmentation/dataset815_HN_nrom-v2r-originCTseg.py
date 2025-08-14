@@ -8,13 +8,13 @@ if __name__ == '__main__':
 
 
     TASK = 2
-    REGION = "AB"
-    DATASET_ID = 810
+    REGION = "HN"
+    DATASET_ID = 815
 
-    SOURCE_DATASET_ID = 541 # synthetic CT dataset
+    SOURCE_DATASET_ID = 543 # synthetic CT dataset
     config = {
         "dataset_id": DATASET_ID,  # Updated to 200 for CT noNorm
-        "dataset_data_name": f"SEGMENTATION_synthrad2025_task{TASK}_CT_{REGION}_aligned_to_Dataset{SOURCE_DATASET_ID}",
+        "dataset_data_name": f"SEGMENTATION_synthrad2025_task{TASK}_CT_{REGION}_aligned_to_Dataset{SOURCE_DATASET_ID}_originCTseg",
         "data_root": f"/datasets/work/hb-synthrad2023/source/synthrad2025_data_v2r/synthRAD2025_Task{TASK}_Train/Task{TASK}/{REGION}", # include centreD
         "preprocessing_CT": "CT_zscore_synthrad", 
         "preprocessing_mask": "masked",
@@ -38,11 +38,10 @@ if __name__ == '__main__':
     set_nnunet_path(nnunet_root, config=config)
 
     # example with 2 input modalities
-    list_data_segmentation = sorted(glob.glob(os.path.join(config["data_root"], '**','segmentation_ct_stitched_resampled.mha'), recursive=True))
+    list_data_segmentation = sorted(glob.glob(os.path.join(config["data_root"], '**','segmentation_ct_origin_stitched_masked.mha'), recursive=True))
     list_data_ct = sorted(glob.glob(os.path.join(config["data_root"], '**','ct_stitched_resampled.mha'), recursive=True))
     print("input2 ---", len(list_data_segmentation), list_data_segmentation[:2])
     print("target ---", len(list_data_ct), list_data_ct[:2])
-    assert len(list_data_segmentation) == len(list_data_ct), "Number of segmentation and CT images must match"
 
     ## Define dataset ID and make paths
     dataset_id = config["dataset_id"]

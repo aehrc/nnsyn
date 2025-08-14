@@ -4,7 +4,7 @@
 #SBATCH --job-name=training
 #SBATCH --time=24:00:00
 #SBATCH --ntasks=1
-#SBATCH --mem=80gb
+#SBATCH --mem=40gb
 #SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1
 #SBATCH --signal=USR1@360
@@ -36,11 +36,11 @@ export nnUNet_results="/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workp
 # srun nnUNetv2_train 284 3d_fullres 0 -tr nnUNetTrainerMRCT_1500epochs
 # srun nnUNetv2_train 290 3d_fullres 0 -tr nnUNetTrainerMRCT_track -p nnUNetResEncUNetLPlans --c
 # srun nnUNetv2_train 544 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked
-srun nnUNetv2_train 540 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked -p nnUNetResEncUNetLPlans --c
+# srun nnUNetv2_train 540 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked -p nnUNetResEncUNetLPlans --c
 # srun nnUNetv2_train 264 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked_perception -p nnUNetResEncUNetLPlans --c
 # srun nnUNetv2_train 264 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked_perception_L2_imglossweight0_7 -p nnUNetResEncUNetLPlans --c
 # srun nnUNetv2_train 264 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked_perception_masked_continue_500epochs -p nnUNetResEncUNetLPlans -pretrained_weights /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset264_synthrad2025_task1_MR_TH_pre_v2r_stitched_masked/nnUNetTrainerMRCT_loss_masked_perception_masked__nnUNetResEncUNetLPlans__3d_fullres/fold_0/checkpoint_final.pth
-# srun nnUNetv2_train 240 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked_perception_masked -p nnUNetResEncUNetLPlans --c
+srun nnUNetv2_train 544 3d_fullres 4 -tr nnUNetTrainerMRCT_loss_masked_perception_masked -p nnUNetResEncUNetLPlans --c
 
 
 
