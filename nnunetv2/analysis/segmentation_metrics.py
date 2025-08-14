@@ -170,13 +170,13 @@ class SegmentationMetricsCompute(SegmentationMetrics):
             res[name] = dict()
 
         for key, value in self.storage.items():
-            res[key]['mean'] = np.mean(value)
-            res[key]['std'] = np.std(value)
-            res[key]['max'] = np.max(value)
-            res[key]['min'] = np.min(value)
-            res[key]['25pc'] = np.percentile(value, 25)
-            res[key]['50pc'] = np.percentile(value, 50)
-            res[key]['75pc'] = np.percentile(value, 75)
+            res[key]['mean'] = np.nanmean(value)
+            res[key]['std'] = np.nanstd(value)
+            res[key]['max'] = np.nanmax(value)
+            res[key]['min'] = np.nanmin(value)
+            res[key]['25pc'] = np.nanpercentile(value, 25)
+            res[key]['50pc'] = np.nanpercentile(value, 50)
+            res[key]['75pc'] = np.nanpercentile(value, 75)
             res[key]['count'] = len(value)
         return res
 

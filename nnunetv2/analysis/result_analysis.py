@@ -42,6 +42,7 @@ class ValidationResults():
         self.mask_path = mask_path
         self.src_path = src_path
         self.gt_segmentation_path = gt_segmentation_path
+        # self.gt_segmentation_path = None # TODO REMOVE LATER
 
         pred_files = sorted(glob(os.path.join(pred_path, '*.mha')))
         self.patient_ids = [Path(pred_file).stem for pred_file in pred_files]
@@ -130,10 +131,15 @@ class ValidationResults():
             mask_transposed = load_image_file_directly(location=mask_path)
             gt_segmentation_path = os.path.join(self.gt_segmentation_path, f'{patient_id}.mha')
             gt_segmentation_transposed = load_image_file_directly(location=gt_segmentation_path)
+            try: 
+                res_seg = self.seg_metrics.score_patient_ts(pred_path, mask_transposed, gt_segmentation_transposed, patient_id, save_pred_seg_path = self.save_pred_seg_path)
+                self.seg_metrics.add(res_seg, patient_id)
 
-
-            res_seg = self.seg_metrics.score_patient_ts(pred_path, mask_transposed, gt_segmentation_transposed, patient_id, save_pred_seg_path = self.save_pred_seg_path)
-            self.seg_metrics.add(res_seg, patient_id)
+            except Exception as e:
+                print(f"!!!Error processing patient {patient_id}: {e}")
+                print(f'!!!No label found for patient {patient_id}, skipping...')
+                res_seg = {'DICE': np.nan, 'HD95': np.nan}
+                self.seg_metrics.add(res_seg, patient_id)
 
     def aim_log_one_patient(self, aim_run, epoch, max_images=2):
         """
@@ -251,8 +257,16 @@ class FinalValidationResults(ValidationResults):
             gt_segmentation_transposed = load_image_file_directly(location=gt_segmentation_path)
 
 
-            res_seg = self.seg_metrics.score_patient_ts(pred_path, mask_transposed, gt_segmentation_transposed, patient_id, save_pred_seg_path = self.save_pred_seg_path)
-            self.seg_metrics.add(res_seg, patient_id)
+            try: 
+                res_seg = self.seg_metrics.score_patient_ts(pred_path, mask_transposed, gt_segmentation_transposed, patient_id, save_pred_seg_path = self.save_pred_seg_path)
+                self.seg_metrics.add(res_seg, patient_id)
+
+            except Exception as e:
+                print(f"!!!Error processing patient {patient_id}: {e}")
+                print(f'!!!No label found for patient {patient_id}, skipping...')
+                res_seg = {'DICE': np.nan, 'HD95': np.nan}
+                self.seg_metrics.add(res_seg, patient_id)
+
 
         # save error images
         self._save_error_image(img_pred, img_gt, img_mask, patient_id)
@@ -395,7 +409,7 @@ if __name__ == '__main__':
     src_path = os.path.join(nnUNet_raw, dataset_name, 'imagesTr')
 
     ts = ValidationResults(pred_path_revert_norm, gt_path, mask_path, src_path, gt_segmentation_path=gt_segmentation_path)
-    # ts.process_a_patient('1ABA011')
+    # ts.process_a_patient('2ABA044')
     ts.process_patients_mp()
 
 
