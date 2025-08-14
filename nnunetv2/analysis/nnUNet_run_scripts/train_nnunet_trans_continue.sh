@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --account=OD-218779
-#SBATCH --job-name=training
+#SBATCH --job-name=cont-230
 #SBATCH --time=24:00:00
 #SBATCH --ntasks=1
 #SBATCH --mem=80gb
@@ -40,20 +40,15 @@ export nnUNet_results="/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workp
 # srun nnUNetv2_train 264 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked_perception -p nnUNetResEncUNetLPlans --c
 # srun nnUNetv2_train 264 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked_perception_L2_imglossweight0_7 -p nnUNetResEncUNetLPlans --c
 # srun nnUNetv2_train 264 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked_perception_masked_continue_500epochs -p nnUNetResEncUNetLPlans -pretrained_weights /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset264_synthrad2025_task1_MR_TH_pre_v2r_stitched_masked/nnUNetTrainerMRCT_loss_masked_perception_masked__nnUNetResEncUNetLPlans__3d_fullres/fold_0/checkpoint_final.pth
-srun nnUNetv2_train 544 3d_fullres 4 -tr nnUNetTrainerMRCT_loss_masked_perception_masked -p nnUNetResEncUNetLPlans --c
+# srun nnUNetv2_train 544 3d_fullres 4 -tr nnUNetTrainerMRCT_loss_masked_perception_masked -p nnUNetResEncUNetLPlans --c
 
-# pretained_weights
-# fold=1
+###### pretained_weights #####
+# fold=4
 # srun nnUNetv2_train 240 3d_fullres ${fold} -tr nnUNetTrainerMRCT_loss_masked_perception_masked_continue_500epochs -p nnUNetResEncUNetLPlans -pretrained_weights /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset260_synthrad2025_task1_MR_AB_pre_v2r_stitched_masked/nnUNetTrainerMRCT_loss_masked_perception_masked__nnUNetResEncUNetLPlans__3d_fullres/fold_${fold}/checkpoint_final.pth
+# srun nnUNetv2_train 242 3d_fullres ${fold} -tr nnUNetTrainerMRCT_loss_masked_perception_masked_continue_500epochs -p nnUNetResEncUNetLPlans -pretrained_weights /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset262_synthrad2025_task1_MR_HN_pre_v2r_stitched_masked/nnUNetTrainerMRCT_loss_masked_perception_masked__nnUNetResEncUNetLPlans__3d_fullres/fold_${fold}/checkpoint_final.pth
+# srun nnUNetv2_train 244 3d_fullres ${fold} -tr nnUNetTrainerMRCT_loss_masked_perception_masked_continue_500epochs -p nnUNetResEncUNetLPlans -pretrained_weights /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset264_synthrad2025_task1_MR_TH_pre_v2r_stitched_masked/nnUNetTrainerMRCT_loss_masked_perception_masked__nnUNetResEncUNetLPlans__3d_fullres/fold_${fold}/checkpoint_final.pth
 
-
-
-
-## mednext models
-# srun nnUNetv2_train 300 3d_fullres 0 -tr nnUNetTrainerV2_MedNeXt_L_kernel5 --c
-# srun nnUNetv2_train 302 3d_fullres_patch_64_192_192 0 -tr nnUNetTrainerV2_MedNeXt_L_kernel5 --c
-
-# segmentation loss
-# srun nnUNetv2_train 250 3d_fullres 0 -tr nnUNetTrainerMRCT_loss_masked -p nnUNetResEncUNetLPlans -pretrained_weights /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset260_synthrad2025_task1_MR_AB_pre_v2r_stitched_masked/nnUNetTrainerMRCT_loss_masked__nnUNetResEncUNetLPlans__3d_fullres/fold_0/checkpoint_final.pth
-
-
+fold=0
+# srun nnUNetv2_train 230 3d_fullres ${fold} -tr nnUNetTrainerMRCT_loss_masked_perception_masked_continue_500epochs -p nnUNetResEncUNetLPlans -pretrained_weights /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset260_synthrad2025_task1_MR_AB_pre_v2r_stitched_masked/nnUNetTrainerMRCT_loss_masked_perception_masked__nnUNetResEncUNetLPlans__3d_fullres/fold_${fold}/checkpoint_final.pth
+srun nnUNetv2_train 232 3d_fullres ${fold} -tr nnUNetTrainerMRCT_loss_masked_perception_masked_continue_500epochs -p nnUNetResEncUNetLPlans -pretrained_weights /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset262_synthrad2025_task1_MR_HN_pre_v2r_stitched_masked/nnUNetTrainerMRCT_loss_masked_perception_masked__nnUNetResEncUNetLPlans__3d_fullres/fold_${fold}/checkpoint_final.pth
+# srun nnUNetv2_train 234 3d_fullres ${fold} -tr nnUNetTrainerMRCT_loss_masked_perception_masked_continue_500epochs -p nnUNetResEncUNetLPlans -pretrained_weights /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/Dataset264_synthrad2025_task1_MR_TH_pre_v2r_stitched_masked/nnUNetTrainerMRCT_loss_masked_perception_masked__nnUNetResEncUNetLPlans__3d_fullres/fold_${fold}/checkpoint_final.pth
