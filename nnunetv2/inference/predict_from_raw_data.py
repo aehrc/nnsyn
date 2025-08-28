@@ -967,35 +967,42 @@ if __name__ == '__main__':
     # predict a bunch of files
     from nnunetv2.paths import nnUNet_results, nnUNet_raw
 
+    dataset_name = "Dataset540_synthrad2025_task2_CBCT_AB_pre_v2r_stitched_masked_both"
+    result_folder = "nnUNetTrainerMRCT_loss_masked_perception_masked__nnUNetResEncUNetLPlans__3d_fullres"
+    FOLD=(0,1,2,3,4)
+    IMG_NAME = '2ABA033_0000.mha'
+    OUTPUT_FILE = '/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/export_models/testing_dataset540_fold0/2ABA033_before_norm.mha'
+
     predictor = nnUNetPredictor(
         tile_step_size=0.5,
         use_gaussian=True,
         use_mirroring=True,
         perform_everything_on_device=True,
         device=torch.device('cuda', 0),
-        verbose=False,
-        verbose_preprocessing=False,
+        verbose=True,
+        verbose_preprocessing=True,
         allow_tqdm=True
     )
     predictor.initialize_from_trained_model_folder(
-        join(nnUNet_results, 'Dataset003_Liver/nnUNetTrainer__nnUNetPlans__3d_lowres'),
-        use_folds=(0,),
+        join(nnUNet_results, f'{dataset_name}/{result_folder}'),
+        use_folds=FOLD,
         checkpoint_name='checkpoint_final.pth',
     )
-    predictor.predict_from_files(join(nnUNet_raw, 'Dataset003_Liver/imagesTs'),
-                                 join(nnUNet_raw, 'Dataset003_Liver/imagesTs_predlowres'),
-                                 save_probabilities=False, overwrite=False,
-                                 num_processes_preprocessing=2, num_processes_segmentation_export=2,
-                                 folder_with_segs_from_prev_stage=None, num_parts=1, part_id=0)
+    ##### PREDICT FROM IMAGE_TS FOLDER #####
+    # predictor.predict_from_files(join(nnUNet_raw, f'{dataset_name}/imagesTs'),
+    #                              join(nnUNet_raw, f'{dataset_name}/imagesTs_predlowres'),
+    #                              save_probabilities=False, overwrite=False,
+    #                              num_processes_preprocessing=2, num_processes_segmentation_export=2,
+    #                              folder_with_segs_from_prev_stage=None, num_parts=1, part_id=0)
 
-    # predict a numpy array
+    ##### PREDICT FROM SITK IMAGE #####
     from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
 
-    img, props = SimpleITKIO().read_images([join(nnUNet_raw, 'Dataset003_Liver/imagesTr/liver_63_0000.nii.gz')])
-    ret = predictor.predict_single_npy_array(img, props, None, None, False)
+    img, props = SimpleITKIO().read_images([join(nnUNet_raw, f'{dataset_name}/imagesTr/{IMG_NAME}')])
+    ret = predictor.predict_single_npy_array(img, props, None, 'TRUNCATED', False)
 
-    iterator = predictor.get_data_iterator_from_raw_npy_data([img], None, [props], None, 1)
-    ret = predictor.predict_from_data_iterator(iterator, False, 1)
+    # iterator = predictor.get_data_iterator_from_raw_npy_data([img], None, [props], None, 1)
+    # ret = predictor.predict_from_data_iterator(iterator, False, 1)
 
     # predictor = nnUNetPredictor(
     #     tile_step_size=0.5,
