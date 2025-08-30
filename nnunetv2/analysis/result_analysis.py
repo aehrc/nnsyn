@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import shutil
 from nnunetv2.analysis.image_metrics import ImageMetricsCompute
-from nnunetv2.analysis.segmentation_metrics import SegmentationMetricsCompute    
 import numpy as np    
 
 
@@ -54,6 +53,8 @@ class ValidationResults():
         if self.gt_segmentation_path:
             print(f'Using segmentation metrics from: {self.gt_segmentation_path}')
             # init segmentation metrics
+            from nnunetv2.analysis.segmentation_metrics import SegmentationMetricsCompute    
+
             self.seg_metrics = SegmentationMetricsCompute()
             self.seg_metrics.init_storage(["DICE", "HD95"])
     
@@ -112,6 +113,8 @@ class ValidationResults():
     def process_a_patient(self, patient_id):
         pred_path = os.path.join(self.pred_path, f'{patient_id}.mha')
         gt_path = os.path.join(self.gt_path, f'{patient_id}.mha') 
+        if not os.path.exists(gt_path):
+            gt_path = os.path.join(self.gt_path, f'{patient_id}_0000.mha') 
         mask_path = os.path.join(self.mask_path, f'{patient_id}.mha')
 
         # read images
@@ -162,6 +165,8 @@ class ValidationResults():
             src_path = os.path.join(self.src_path, f'{patient_id}_0000.mha')
             pred_path = os.path.join(self.pred_path, f'{patient_id}.mha')
             gt_path = os.path.join(self.gt_path, f'{patient_id}.mha') 
+            if not os.path.exists(gt_path):
+                gt_path = os.path.join(self.gt_path, f'{patient_id}_0000.mha') 
 
             # read images
             img_pred = sitk.ReadImage(pred_path, sitk.sitkFloat32)
@@ -233,6 +238,8 @@ class FinalValidationResults(ValidationResults):
     def process_a_patient(self, patient_id):
         pred_path = os.path.join(self.pred_path, f'{patient_id}.mha')
         gt_path = os.path.join(self.gt_path, f'{patient_id}.mha') 
+        if not os.path.exists(gt_path):
+            gt_path = os.path.join(self.gt_path, f'{patient_id}_0000.mha') 
         mask_path = os.path.join(self.mask_path, f'{patient_id}.mha')
         src_path = os.path.join(self.src_path, f'{patient_id}_0000.mha')
 

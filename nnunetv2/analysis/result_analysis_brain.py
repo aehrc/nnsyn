@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import shutil
 from nnunetv2.analysis.image_metrics import ImageMetricsCompute
-from nnunetv2.analysis.segmentation_metrics import SegmentationMetricsCompute    
 import numpy as np    
 
 
@@ -55,6 +54,8 @@ class ValidationResults():
         if self.gt_segmentation_path:
             print(f'Using segmentation metrics from: {self.gt_segmentation_path}')
             # init segmentation metrics
+            from nnunetv2.analysis.segmentation_metrics import SegmentationMetricsCompute    
+
             self.seg_metrics = SegmentationMetricsCompute()
             self.seg_metrics.init_storage(["DICE", "HD95"])
     

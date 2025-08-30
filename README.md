@@ -5,11 +5,14 @@ This repo holds the code and docker winning 1st in MR-to-CT synthesis task in MI
 In this project, we would like create an easy-to-use, but extendable workflow for medical image synthesis task, similar to nnUNet-v2. We incorporated different preprocessing, new architectures, new evaluation metrics for image synthesis tasks. 
 
 # 🚀 Feature highlights:
-- [x] Easy-to-configure preprocessing
-- Extendable beyond nnUNet
-- Advanced experiemnt tracking - AIM
-- [x] Support mask 
-- Embedded synthesis metrics
+- [x] oneliner preprocessing
+- [x] oneliner training
+- [ ] oneliner inference
+- [ ] oneliner evaluation
+- [ ] train segmentation branch within the same code repo
+- [ ] support preprocessing and training with the masks
+- [ ] support other mainstream network architecture
+- [ ] optional advanced experiment tracking with AIM
 
 # 🚀 Installation:
 ```bash

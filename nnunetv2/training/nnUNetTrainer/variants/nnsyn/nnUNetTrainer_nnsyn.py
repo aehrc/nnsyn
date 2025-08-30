@@ -36,7 +36,7 @@ from torch import autocast, nn
 from torch import autocast
 
 
-class nnUNetTrainerMRCT(nnUNetTrainer):
+class nnUNetTrainer_nnsyn(nnUNetTrainer):
     def __init__(
         self,
         plans: dict,
@@ -259,7 +259,7 @@ from nnunetv2.analysis.result_analysis import FinalValidationResults, Validation
 
 
 
-class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
+class nnUNetTrainer_nnsyn_track(nnUNetTrainer_nnsyn):
     def __init__(
         self,
         plans: dict,
@@ -324,35 +324,21 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         self.aim_run['current_epoch'] = self.current_epoch
         self.aim_run['job_id'] = os.environ['SLURM_JOB_ID'] if 'SLURM_JOB_ID' in os.environ else 'local_run'
         # assign region based on dataset name
-        if '_AB' in self.plans_manager.dataset_name:
-            self.aim_run['region'] = 'AB'
-        elif '_TH' in self.plans_manager.dataset_name:
-            self.aim_run['region'] = 'TH'
-        elif '_HN' in self.plans_manager.dataset_name:
-            self.aim_run['region'] = 'HN' 
-        else:
-            self.aim_run['region'] = 'Unknown'
-
-        # assign task based on dataset name
-        if '_task1_' in self.plans_manager.dataset_name:
-            self.aim_run['task'] = '1'
-        elif '_task2_' in self.plans_manager.dataset_name:
-            self.aim_run['task'] = '2'
-        else:
-            self.aim_run['task'] = 'Unknown'
+        self.aim_run['region'] = self._get_region_name()
+        self.aim_run['task'] = self._get_task_name()
 
     def _get_region_name(self) -> str:
         """
         Returns the region name for the loss function.
         """
-        if '_AB_' in self.plans_manager.dataset_name:
+        if '_AB' in self.plans_manager.dataset_name:
             return 'AB'
-        elif '_TH_' in self.plans_manager.dataset_name:
+        elif '_TH' in self.plans_manager.dataset_name:
             return 'TH'
-        elif '_HN_' in self.plans_manager.dataset_name:
+        elif '_HN' in self.plans_manager.dataset_name:
             return 'HN'
         else:
-            raise ValueError("Unknown region in dataset name: {}".format(self.plans_manager.dataset_name))
+            return 'Unknown'
 
     def _get_task_name(self) -> str:
         """
@@ -363,7 +349,7 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         elif '_task2_' in self.plans_manager.dataset_name:
             return '2'
         else:
-            raise ValueError("Unknown task in dataset name: {}".format(self.plans_manager.dataset_name))
+            return 'Unknown'
     
     def on_epoch_end(self):
         super().on_epoch_end()
@@ -550,19 +536,6 @@ class nnUNetTrainerMRCT_track(nnUNetTrainerMRCT):
         signal.signal(signal.SIGTERM, term_handler)
         print('Start listening: waiting for signal')
 
-
-class nnUNetTrainerMRCT_1500epochs(nnUNetTrainerMRCT_track):
-    def __init__(
-        self,
-        plans: dict,
-        configuration: str,
-        fold: int,
-        dataset_json: dict,
-        unpack_dataset: bool = True,
-        device: torch.device = torch.device("cuda")
-    ):
-        super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
-        self.num_epochs = 1500
 
 
 
