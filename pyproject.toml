@@ -6,7 +6,7 @@ description = "nnU-Net_translation is an adapted nnUNet for medical image transl
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
-    { name = "Arthur Longuefosse", email = "arthur.longuefosse@gmail.com"},
+    { name = "Bowen Xin", email = "bowen.xin@csiro.au"},
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -57,8 +57,8 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://github.com/Phyrise/nnUNet_translation"
-repository = "https://github.com/Phyrise/nnUNet_translation"
+homepage = "https://github.com/bowenxin/nnsyn"
+repository = "https://github.com/bowenxin/nnsyn"
 
 [project.scripts]
 nnUNetv2_plan_and_preprocess = "nnunetv2.experiment_planning.plan_and_preprocess_entrypoints:plan_and_preprocess_entry"
@@ -83,6 +83,7 @@ nnUNetv2_move_plans_between_datasets = "nnunetv2.experiment_planning.plans_for_p
 nnUNetv2_evaluate_folder = "nnunetv2.evaluation.evaluate_predictions:evaluate_folder_entry_point"
 nnUNetv2_evaluate_simple = "nnunetv2.evaluation.evaluate_predictions:evaluate_simple_entry_point"
 nnUNetv2_convert_MSD_dataset = "nnunetv2.dataset_conversion.convert_MSD_dataset:entry_point"
+nnsyn_plan_and_preprocess = "nnunetv2.nnsyn.nnsyn_preprocessing_entrypoints:nnsyn_plan_and_preprocess_entry"
 
 [project.optional-dependencies]
 dev = [
