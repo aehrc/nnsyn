@@ -85,6 +85,7 @@ nnUNetv2_evaluate_simple = "nnunetv2.evaluation.evaluate_predictions:evaluate_si
 nnUNetv2_convert_MSD_dataset = "nnunetv2.dataset_conversion.convert_MSD_dataset:entry_point"
 nnsyn_plan_and_preprocess = "nnunetv2.nnsyn.nnsyn_preprocessing_entrypoints:nnsyn_plan_and_preprocess_entry"
 nnsyn_train = "nnunetv2.run.run_training:run_training_entry"
+nnsyn_predict = "nnunetv2.nnsyn.nnsyn_predict_entrypoints:nnsyn_predict_entry"
 
 [project.optional-dependencies]
 dev = [

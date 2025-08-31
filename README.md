@@ -7,12 +7,12 @@ In this project, we would like create an easy-to-use, but extendable workflow fo
 # 🚀 Feature highlights:
 - [x] oneliner preprocessing
 - [x] oneliner training
-- [ ] oneliner inference
+- [x] oneliner inference
 - [ ] oneliner evaluation
 - [ ] train segmentation branch within the same code repo
-- [ ] support preprocessing and training with the masks
+- [X] support preprocessing and training with the masks
 - [ ] support other mainstream network architecture
-- [ ] optional advanced experiment tracking with AIM
+- [x] optional advanced experiment tracking with AIM
 
 # 🚀 Installation:
 ```bash
