@@ -1,4 +1,5 @@
 from nnunetv2.nnsyn.nnsyn_preprocessing import nnsyn_plan_and_preprocess
+from nnunetv2.nnsyn.nnsyn_preprocessing_seg import nnsyn_plan_and_preprocess_seg
 
 def nnsyn_plan_and_preprocess_entry():
     import argparse
@@ -27,8 +28,40 @@ def nnsyn_plan_and_preprocess_entry():
        plan=args.plan,
    )
     
+def nnsyn_plan_and_preprocess_seg_entry():
+    import argparse
+    parser = argparse.ArgumentParser(description="nnUNet preprocessing for nnSyn")
+    parser.add_argument('-d', '--dataset_id', type=int, required=True, help="Dataset ID (will create DatasetXXX_<name> and DatasetXXX+1_<name> in nnUNet_raw and nnUNet_preprocessed)")
+    parser.add_argument('-ds', '--dataset_id_src', type=int, required=True, help="Source Dataset ID (will create DatasetXXX_<name> and DatasetXXX+1_<name> in nnUNet_raw and nnUNet_preprocessed)")
+    parser.add_argument('-c', '--configuration', type=str, default='3d_fullres', help="Configuration to preprocess (default: 3d_fullres)")
+    parser.add_argument('-p', '--plan', type=str, default='nnUNetPlans', help="Plan identifier (default: nnUNetPlans)")
+    parser.add_argument('--data_origin_path', type=str, required=True, help="Root path for nnUNet_raw and nnUNet_preprocessed (default: uses environment variables)")
+    parser.add_argument('--preprocessing_target', type=str, required=True, help="Preprocessing for target data (e.g., CT, MR, synthrad, etc.)")
+    parser.add_argument('--dataset_name', type=str, default=None, required=False, help="Name for input dataset (e.g., CT, MR, synthrad, etc.)")
+
+    args = parser.parse_args()
+
+    nnsyn_plan_and_preprocess_seg(data_origin_path='/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/ORIGIN/synthrad2025_task1_mri2ct_AB', 
+                              dataset_id=961, dataset_id_src=960,
+                              preprocessing_target='CT', 
+                              configuration='3d_fullres', plan='nnUNetResEncUNetLPlans')
+    
+    
+    nnsyn_plan_and_preprocess_seg(
+       data_origin_path=args.data_origin_path,
+       dataset_id=args.dataset_id,
+       dataset_id_src=args.dataset_id_src,
+       dataset_name=args.dataset_name,
+       preprocessing_target=args.preprocessing_target,
+       configuration=args.configuration,
+       plan=args.plan,
+   )
+    
     # example usage:
     # python -m nnsyn_plan_and_preprocess_entry -d 982 -c 3d_fullres -pl nnUNetPlannerResEncL -p nnUNetResEncUNetLPlans --data_origin_path '/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/ORIGIN/Synthrad2025_MRI2CT_AB' --preprocessing_input MR --preprocessing_target CT
     # nnsyn_plan_and_preprocess -d 960 -c 3d_fullres -pl nnUNetPlannerResEncL -p nnUNetResEncUNetLPlans --data_origin_path '/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/ORIGIN/Synthrad2025_MRI2CT_AB' --preprocessing_input MR --preprocessing_target CT
 if __name__ == '__main__':
     nnsyn_plan_and_preprocess_entry()
+
+    # example usage:
+    # python -m nnsyn_plan_and_preprocess_seg_entry -d 961 -ds 960 -c 3d_fullres -p nnUNetResEncUNetLPlans --data_origin_path '/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/ORIGIN/synthrad2025_task1_mri2ct_AB' --preprocessing_target CT

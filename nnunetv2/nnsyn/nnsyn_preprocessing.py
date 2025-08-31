@@ -18,7 +18,9 @@ from tqdm import tqdm
 # |       |-- TARGET_IMAGES
 # |           |-- PATIENT_0001.mha
 # |       |-- MASKS (optional)
-# |           |-- PATIENT_0001.mha (optional)
+# |           |-- PATIENT.mha (optional)
+# |       |-- Labels (optional)
+# |           |-- PATIENT.mha (optional)
 # |-- nnUNet_raw
 # |   |-- DatasetXXX_YYY
 # |-- nnUNet_preprocessed
