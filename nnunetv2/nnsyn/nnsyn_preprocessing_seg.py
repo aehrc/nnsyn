@@ -52,7 +52,6 @@ def process_file_labels(data_path, dataset_path):
 
 
 def nnsyn_plan_and_preprocess_seg(data_origin_path: str, dataset_id: int,  dataset_id_src: int,
-                        preprocessing_target: str,
                         configuration: str = '3d_fullres', plan: str = 'nnUNetPlans', 
                         dataset_name: str = None):
     list_data_ct = sorted(glob.glob(os.path.join(data_origin_path, 'TARGET_IMAGES','*.mha'), recursive=True))
@@ -75,22 +74,26 @@ def nnsyn_plan_and_preprocess_seg(data_origin_path: str, dataset_id: int,  datas
         list(tqdm(executor.map(lambda target_path: process_file_labels(target_path, dataset_data_path), list_data_labels), total=len(list_data_labels)))
 
     
-    # create dataset.json
-    num_train = len(list_data_ct)
-    assert len(list_data_labels) == len(list_data_ct)
-    labels_to_use = [
-                2, # kidney right
-                3, # kidney left
-                5, # liver
-                6, # stomach
-                *range(10, 14+1), #lungs
-                *range(26, 50+1), #vertebrae
-                51, #heart
-                79, # spinal cord
-                *range(92, 115+1), # ribs
-                116 #sternum
-            ]
-    create_dataset_json(num_train, preprocessing_target, dataset_data_path, labels_to_use)
+    if os.path.exists(os.path.join(data_origin_path, 'dataset.json')):
+        print(f"Segmentation dataset.json found in {data_origin_path}, copying it to {dataset_data_path}")
+        shutil.copy(os.path.join(data_origin_path, 'dataset.json'), dataset_data_path)
+        return
+    # create dataset.json -> change it for general segmentator using dataset.json in ORIGIN
+    # num_train = len(list_data_ct)
+    # assert len(list_data_labels) == len(list_data_ct)
+    # labels_to_use = [
+    #             2, # kidney right
+    #             3, # kidney left
+    #             5, # liver
+    #             6, # stomach
+    #             *range(10, 14+1), #lungs
+    #             *range(26, 50+1), #vertebrae
+    #             51, #heart
+    #             79, # spinal cord
+    #             *range(92, 115+1), # ribs
+    #             116 #sternum
+    #         ]
+    # create_dataset_json(num_train, preprocessing_target, dataset_data_path, labels_to_use)
     
     SOURCE_PLAN_IDENTIFIER = plan
     TARGET_PLAN_IDENTIFIER = plan + f'_Dataset{dataset_id_src}'
@@ -103,8 +106,7 @@ def nnsyn_plan_and_preprocess_seg(data_origin_path: str, dataset_id: int,  datas
 if __name__ == '__main__':
     # example usage:
     # python -m nnsyn_preprocessing_entry -d 982 --data_origin_path '/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/ORIGIN/Synthrad2025_MRI2CT_AB' --preprocessing_target CT --dataset_id_src 960
-    # nnsyn_plan_and_preprocess -d 982 --data_origin_path '/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/ORIGIN/Synthrad2025_MRI2CT_AB' --preprocessing_target CT --dataset_id_src 960
+    # nnsyn_plan_and_preprocess_seg -d 961 -ds 960 -c 3d_fullres -p nnUNetResEncUNetLPlans --data_origin_path '/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/ORIGIN/synthrad2025_task1_mri2ct_AB' --preprocessing_target CT
     nnsyn_plan_and_preprocess_seg(data_origin_path='/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/ORIGIN/synthrad2025_task1_mri2ct_AB', 
                               dataset_id=961, dataset_id_src=960,
-                              preprocessing_target='CT', 
                               configuration='3d_fullres', plan='nnUNetResEncUNetLPlans')

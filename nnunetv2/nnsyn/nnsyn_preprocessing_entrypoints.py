@@ -36,14 +36,12 @@ def nnsyn_plan_and_preprocess_seg_entry():
     parser.add_argument('-c', '--configuration', type=str, default='3d_fullres', help="Configuration to preprocess (default: 3d_fullres)")
     parser.add_argument('-p', '--plan', type=str, default='nnUNetPlans', help="Plan identifier (default: nnUNetPlans)")
     parser.add_argument('--data_origin_path', type=str, required=True, help="Root path for nnUNet_raw and nnUNet_preprocessed (default: uses environment variables)")
-    parser.add_argument('--preprocessing_target', type=str, required=True, help="Preprocessing for target data (e.g., CT, MR, synthrad, etc.)")
     parser.add_argument('--dataset_name', type=str, default=None, required=False, help="Name for input dataset (e.g., CT, MR, synthrad, etc.)")
 
     args = parser.parse_args()
 
     nnsyn_plan_and_preprocess_seg(data_origin_path='/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/ORIGIN/synthrad2025_task1_mri2ct_AB', 
                               dataset_id=961, dataset_id_src=960,
-                              preprocessing_target='CT', 
                               configuration='3d_fullres', plan='nnUNetResEncUNetLPlans')
     
     
@@ -52,7 +50,6 @@ def nnsyn_plan_and_preprocess_seg_entry():
        dataset_id=args.dataset_id,
        dataset_id_src=args.dataset_id_src,
        dataset_name=args.dataset_name,
-       preprocessing_target=args.preprocessing_target,
        configuration=args.configuration,
        plan=args.plan,
    )
@@ -64,4 +61,4 @@ if __name__ == '__main__':
     nnsyn_plan_and_preprocess_entry()
 
     # example usage:
-    # python -m nnsyn_plan_and_preprocess_seg_entry -d 961 -ds 960 -c 3d_fullres -p nnUNetResEncUNetLPlans --data_origin_path '/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/ORIGIN/synthrad2025_task1_mri2ct_AB' --preprocessing_target CT
+    # python -m nnsyn_plan_and_preprocess_seg_entry -d 961 -ds 960 -c 3d_fullres -p nnUNetResEncUNetLPlans --data_origin_path '/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/ORIGIN/synthrad2025_task1_mri2ct_AB'

@@ -66,13 +66,13 @@ nnsyn_plan_and_preprocess_seg -d 961 -ds 960 -c 3d_fullres -p nnUNetResEncUNetLP
 
 Train the segmentation branch for perception loss :
 ```bash
-git swtich nnunetv2
+git switch nnunetv2
 nnUNetv2_train 961 3d_fullres 0 -tr nnUNetTrainer -p nnUNetResEncUNetLPlans_Dataset960 --c
+git switch main
 ``` 
 
 Train the synthesis network : 
 ```bash
-git swtich main
 nnsyn_train 960 3d_fullres 0 -tr nnUNetTrainer_nnsyn_loss_masked_perception_masked_track -p nnUNetResEncUNetLPlans
 ```
 
