@@ -60,19 +60,19 @@ Plan experiments and preprocess for the synthesis model.
 nnsyn_plan_and_preprocess -d 960 -c 3d_fullres -pl nnUNetPlannerResEncL -p nnUNetResEncUNetLPlans  --preprocessing_input MR --preprocessing_target CT 
 ```
 
-Prepare dataset and preprocess for the segmentation model. The plan will be transfered from synthesis model (960) to segmentation model (961). 
+(For loss_map) Prepare dataset and preprocess for the segmentation model. The plan will be transfered from synthesis model (960) to segmentation model (961). 
 ```bash
 nnsyn_plan_and_preprocess_seg -d 960 -dseg 961 -c 3d_fullres -p nnUNetResEncUNetLPlans
 ```
 
-Train the segmentation model for perception loss. We first switch to github segmentation branch (nnunetv2), train the segmentation model, and then switch back to the github synthesis branch (main). 
+(For loss_map) Train the segmentation model for perception loss. We first switch to github segmentation branch (nnunetv2), train the segmentation model, and then switch back to the github synthesis branch (main). 
 ```bash
 git switch nnunetv2
 nnUNetv2_train 961 3d_fullres 0 -tr nnUNetTrainer -p nnUNetResEncUNetLPlans_Dataset960 --c
 git switch main
 ``` 
 
-Train the synthesis network : 
+Train the synthesis network with Masked Anatomical Perception (map) loss: 
 ```bash
 nnsyn_train 960 3d_fullres 0 -tr nnUNetTrainer_nnsyn_loss_map -p nnUNetResEncUNetLPlans
 ```
