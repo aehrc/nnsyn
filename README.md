@@ -33,19 +33,20 @@ export nnUNet_preprocessed="path_to/nnUNet_preprocessed"
 export nnUNet_results="path_to/nnUNet_results"
 ```
 
-Organise your data into ```"PATH_TO/ORIGIN"```:
+Organise your data into ```"PATH_TO/nnsyn_origin_dataset"```. The "MASKS" folder contains the body contour, while the 'LABELS' folder contains segmentation labels.
 ```bash
 DATA_STRUCT:
-|-- ORIGIN
-|   |-- Dataset_MRI2CT
+|-- nnsyn_origin
+|   |-- synthrad2025_task1_mri2ct_AB
 |       |-- INPUT_IMAGES
-|           |-- PATIENT_0001.mha
+|           |-- PATIENT_1_0001.mha
 |       |-- TARGET_IMAGES
-|           |-- PATIENT_0001.mha
+|           |-- PATIENT_1_0001.mha
 |       |-- MASKS (optional)
-|           |-- PATIENT.mha (optional)
+|           |-- PATIENT_1.mha
 |       |-- LABELS (optional)
-|           |-- PATIENT.mha (optional)
+|           |-- PATIENT_1.mha
+|           |-- dataset.json
 |-- nnUNet_raw
 |   |-- DatasetXXX_YYY
 |-- nnUNet_preprocessed
@@ -54,18 +55,17 @@ DATA_STRUCT:
 |   |-- DatasetXXX_YYY
 ```
 
-Plan experiments and preprocess : 
+Plan experiments and preprocess for the synthesis model. 
 ```bash
-nnsyn_plan_and_preprocess -d 960 -dseg 961 -c 3d_fullres -pl nnUNetPlannerResEncL -p nnUNetResEncUNetLPlans  --preprocessing_input MR --preprocessing_target CT \
---data_origin_path 'PATH_TO/ORIGIN/synthrad2025_task1_mri2ct_AB'
+nnsyn_plan_and_preprocess -d 960 -c 3d_fullres -pl nnUNetPlannerResEncL -p nnUNetResEncUNetLPlans  --preprocessing_input MR --preprocessing_target CT 
 ```
 
-Prepare dataset and preprocess for the segmentation branch :
+Prepare dataset and preprocess for the segmentation model. The plan will be transfered from synthesis model (960) to segmentation model (961). 
 ```bash
-nnsyn_plan_and_preprocess_seg -d 960 -dseg 961 -c 3d_fullres -p nnUNetResEncUNetLPlans --data_origin_path 'PATH_TO/ORIGIN/synthrad2025_task1_mri2ct_AB' --preprocessing_target CT
+nnsyn_plan_and_preprocess_seg -d 960 -dseg 961 -c 3d_fullres -p nnUNetResEncUNetLPlans
 ```
 
-Train the segmentation branch for perception loss :
+Train the segmentation model for perception loss. We first switch to github segmentation branch (nnunetv2), train the segmentation model, and then switch back to the github synthesis branch (main). 
 ```bash
 git switch nnunetv2
 nnUNetv2_train 961 3d_fullres 0 -tr nnUNetTrainer -p nnUNetResEncUNetLPlans_Dataset960 --c
@@ -74,12 +74,12 @@ git switch main
 
 Train the synthesis network : 
 ```bash
-nnsyn_train 960 3d_fullres 0 -tr nnUNetTrainer_nnsyn_loss_masked_perception_masked_track -p nnUNetResEncUNetLPlans
+nnsyn_train 960 3d_fullres 0 -tr nnUNetTrainer_nnsyn_loss_map -p nnUNetResEncUNetLPlans
 ```
 
 Inference :
 ```bash
-nnsyn_predict -d DatasetY -i INPUT -o OUTPUT -m MASK -c 3d_fullres -p nnUNetPlans -tr nnUNetTrainerMRCT -f FOLD
+nnsyn_predict -d 960 -i INPUT_PATH -o OUTPUT_PATH -m MASK_PATH -c 3d_fullres -p nnUNetResEncUNetLPlans -tr nnUNetTrainer_nnsyn_loss_map -f 0
 ```
 
 <!-- # Citation

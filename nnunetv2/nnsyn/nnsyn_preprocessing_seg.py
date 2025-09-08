@@ -112,7 +112,7 @@ def nnsyn_plan_and_preprocess_seg(dataset_id_syn: int,  dataset_id_seg: int,
             plans = json.load(f)
         plans['dataset_name_seg'] =  maybe_convert_to_dataset_name(dataset_id_seg)
         with open(plans_file, 'w') as f:
-            json.dump(plans, f)
+            json.dump(plans, f, indent=4)
         print(f"Saved dataset_name_seg {dataset_id_seg} to {plans_file}")
 
 if __name__ == '__main__':

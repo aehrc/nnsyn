@@ -76,6 +76,9 @@ class MaskedAnatomicalPerceptionLoss(nn.Module):
         assert len(glob.glob(os.path.join(os.environ['nnUNet_results'], dataset_name_seg, '*'))) == 1, f"Segmentation model output dir is more than one or empty: {segmentation_output_dir}"
         model_training_output_dir = segmentation_output_dir
         checkpoint_name = 'checkpoint_final.pth'
+        if not os.path.exists(join(model_training_output_dir, f'fold_0', checkpoint_name)):
+            checkpoint_name = 'checkpoint_best.pth'
+            print('checkpoint_final.pth not found, using checkpoint_best.pth instead')
         dataset_json = load_json(join(model_training_output_dir, 'dataset.json'))
         plans = load_json(join(model_training_output_dir, 'plans.json'))
         plans_manager = PlansManager(plans)
