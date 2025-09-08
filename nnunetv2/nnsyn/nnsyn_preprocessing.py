@@ -9,6 +9,7 @@ import numpy as np
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 
+
 # required input dataset id, 
 # DATA_STRUCT:
 # |-- ORIGIN
@@ -133,10 +134,12 @@ def move_gt_plan(nnunet_datas_preprocessed_dir, dataset_target_plan_path):
         print(json_file, "->", dataset_target_plan_path)
 
 
-def nnsyn_plan_and_preprocess(data_origin_path: str, dataset_id: int,  
+def nnsyn_plan_and_preprocess(dataset_id: int,  
                         preprocessing_input: str, preprocessing_target: str,
                         configuration: str = '3d_fullres', planner_class: str = 'ExperimentPlanner', plan: str = 'nnUNetPlans', 
                         dataset_name: str = None, use_mask: bool = False):
+    data_origin_path = os.environ.get('nnsyn_origin_dataset', None)
+    print("Using data origin path:", data_origin_path)
     list_data_cbct = sorted(glob.glob(os.path.join(data_origin_path, 'INPUT_IMAGES','*.mha'), recursive=True))
     list_data_mask = sorted(glob.glob(os.path.join(data_origin_path, 'MASKS','*.mha'), recursive=True))
     list_data_ct = sorted(glob.glob(os.path.join(data_origin_path, 'TARGET_IMAGES','*.mha'), recursive=True))
@@ -213,6 +216,8 @@ def nnsyn_plan_and_preprocess(data_origin_path: str, dataset_id: int,
     shutil.rmtree(os.path.join(os.environ['nnUNet_raw'], f'Dataset{dataset_id+1:03d}_{dataset_name}') )
     shutil.rmtree(os.path.join(os.environ['nnUNet_preprocessed'], f'Dataset{dataset_id+1:03d}_{dataset_name}') )
     shutil.rmtree(os.path.join(os.environ['nnUNet_results'], f'Dataset{dataset_id+1:03d}_{dataset_name}') )
+
+
 
 if __name__ == "__main__":
     # data_origin_path = '/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/ORIGIN/Dataset_MRI2CT'

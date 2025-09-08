@@ -4,10 +4,10 @@ import numpy as np
 from nnunetv2.training.loss.syn_perception_loss import SynPerceptionLoss, SynPerceptionLoss_L2
 from nnunetv2.utilities.collate_outputs import collate_outputs
 from nnunetv2.training.nnUNetTrainer.variants.nnsyn.nnUNetTrainer_nnsyn_loss_masked import nnUNetTrainer_nnsyn_loss_masked, nnUNetTrainer_nnsyn_loss_masked_track
+from nnunetv2.training.nnUNetTrainer.variants.nnsyn.nnsyn_loss_map import MaskedAnatomicalPerceptionLoss
 
 
-
-class nnUNetTrainer_nnsyn_loss_masked_perception(nnUNetTrainer_nnsyn_loss_masked):
+class nnUNetTrainer_nnsyn_loss_map(nnUNetTrainer_nnsyn_loss_masked):
     def __init__(
         self,
         plans: dict,
@@ -23,7 +23,9 @@ class nnUNetTrainer_nnsyn_loss_masked_perception(nnUNetTrainer_nnsyn_loss_masked
         self.num_epochs = 1000
         self.decoder_type = "standard" #["standard", "trilinear", "nearest"]
         self.image_loss_weight = 0.5  # default value, can be overridden in subclasses
+        self.perception_masked = True
         # track losses 
+        self.dataset_name_seg = self.plans_manager.plans['dataset_name_seg']
         self.logger.my_fantastic_logging['train_seg_loss'] = list()
         self.logger.my_fantastic_logging['train_img_loss'] = list()  
         self.logger.my_fantastic_logging['val_seg_loss'] = list()
@@ -31,9 +33,7 @@ class nnUNetTrainer_nnsyn_loss_masked_perception(nnUNetTrainer_nnsyn_loss_masked
 
     def _build_loss(self):
         # loss = myMSE()
-        task = self._get_task_name()
-        region = self._get_region_name()
-        loss= SynPerceptionLoss(task=task, region=region, image_loss_weight=self.image_loss_weight)
+        loss= MaskedAnatomicalPerceptionLoss(dataset_name_seg=self.dataset_name_seg, image_loss_weight=self.image_loss_weight, perception_masked=self.perception_masked)
         return loss
     
     # track losses
@@ -61,6 +61,34 @@ class nnUNetTrainer_nnsyn_loss_masked_perception(nnUNetTrainer_nnsyn_loss_masked
         self.logger.log('val_seg_loss', np.mean(outputs['val_seg_loss']), self.current_epoch)
         self.logger.log('val_img_loss', np.mean(outputs['val_img_loss']), self.current_epoch)
 
+    
+
+# class nnUNetTrainer_nnsyn_loss_map(nnUNetTrainer_nnsyn_loss_masked_perception):
+#     def __init__(
+#         self,
+#         plans: dict,
+#         configuration: str,
+#         fold: int,
+#         dataset_json: dict,
+#         unpack_dataset: bool = True,
+#         device: torch.device = torch.device("cuda")
+#     ):
+#         super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
+#         self.enable_deep_supervision = False
+#         self.num_iterations_per_epoch = 250
+#         self.num_epochs = 1000
+#         self.decoder_type = "standard" #["standard", "trilinear", "nearest"]  
+#         self.perception_masked = True
+#         self.image_loss_weight = 0.5  # default value, can be overridden in subclasses
+
+#     def _build_loss(self):
+#         # loss = myMSE()
+#         task = self._get_task_name()
+#         region = self._get_region_name()
+#         loss= SynPerceptionLoss(task=task, region=region, image_loss_weight=self.image_loss_weight, perception_masked=self.perception_masked)
+#         return loss
+
+class nnUNetTrainer_nnsyn_loss_map(nnUNetTrainer_nnsyn_loss_map, nnUNetTrainer_nnsyn_loss_masked_track):
     def on_epoch_end(self):
         super().on_epoch_end()
         self.aim_run.track(np.round(self.logger.my_fantastic_logging['train_seg_loss'][-1], decimals=4), \
@@ -72,58 +100,30 @@ class nnUNetTrainer_nnsyn_loss_masked_perception(nnUNetTrainer_nnsyn_loss_masked
         self.aim_run.track(np.round(self.logger.my_fantastic_logging['val_img_loss'][-1], decimals=4), \
                            name="val_img_loss", context={"type": 'loss'}, step=self.current_epoch + 1)
 
-class nnUNetTrainer_nnsyn_loss_masked_perception_masked(nnUNetTrainer_nnsyn_loss_masked_perception):
-    def __init__(
-        self,
-        plans: dict,
-        configuration: str,
-        fold: int,
-        dataset_json: dict,
-        unpack_dataset: bool = True,
-        device: torch.device = torch.device("cuda")
-    ):
-        super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
-        self.enable_deep_supervision = False
-        self.num_iterations_per_epoch = 250
-        self.num_epochs = 1000
-        self.decoder_type = "standard" #["standard", "trilinear", "nearest"]  
-        self.perception_masked = True
-        self.image_loss_weight = 0.5  # default value, can be overridden in subclasses
 
-    def _build_loss(self):
-        # loss = myMSE()
-        task = self._get_task_name()
-        region = self._get_region_name()
-        loss= SynPerceptionLoss(task=task, region=region, image_loss_weight=self.image_loss_weight, perception_masked=self.perception_masked)
-        return loss
-    
-class nnUNetTrainer_nnsyn_loss_masked_perception_masked_track(nnUNetTrainer_nnsyn_loss_masked_perception_masked, nnUNetTrainer_nnsyn_loss_masked_track):
-    pass
+# class nnUNetTrainer_nnsyn_loss_masked_perception_L2(nnUNetTrainer_nnsyn_loss_masked_perception):
+#     def __init__(
+#         self,
+#         plans: dict,
+#         configuration: str,
+#         fold: int,
+#         dataset_json: dict,
+#         unpack_dataset: bool = True,
+#         device: torch.device = torch.device("cuda")
+#     ):
+#         super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
+#         self.enable_deep_supervision = False
+#         self.num_iterations_per_epoch = 250
+#         self.num_epochs = 1000
+#         self.decoder_type = "standard" #["standard", "trilinear", "nearest"]  
+#         self.image_loss_weight = 0.5  # default value, can be overridden in subclasses
 
-
-class nnUNetTrainer_nnsyn_loss_masked_perception_L2(nnUNetTrainer_nnsyn_loss_masked_perception):
-    def __init__(
-        self,
-        plans: dict,
-        configuration: str,
-        fold: int,
-        dataset_json: dict,
-        unpack_dataset: bool = True,
-        device: torch.device = torch.device("cuda")
-    ):
-        super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
-        self.enable_deep_supervision = False
-        self.num_iterations_per_epoch = 250
-        self.num_epochs = 1000
-        self.decoder_type = "standard" #["standard", "trilinear", "nearest"]  
-        self.image_loss_weight = 0.5  # default value, can be overridden in subclasses
-
-    def _build_loss(self):
-        # loss = myMSE()
-        task = self._get_task_name()
-        region = self._get_region_name()
-        loss= SynPerceptionLoss_L2(task=task, region=region, image_loss_weight=self.image_loss_weight)
-        return loss
+#     def _build_loss(self):
+#         # loss = myMSE()
+#         task = self._get_task_name()
+#         region = self._get_region_name()
+#         loss= SynPerceptionLoss_L2(task=task, region=region, image_loss_weight=self.image_loss_weight)
+#         return loss
 
 # class nnUNetTrainer_nnsyn_loss_masked_perception_L2_imglossweight0_7(nnUNetTrainer_nnsyn_loss_masked_perception_L2):
 #     def __init__(

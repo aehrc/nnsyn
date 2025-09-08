@@ -27,6 +27,7 @@ pip install -e .
 
 First, export environment variables :
 ```bash
+export nnsyn_origin_dataset = "path_to/nnsyn_origin/synthrad2025_task1_mri2ct_AB"
 export nnUNet_raw="path_to/nnUNet_raw"
 export nnUNet_preprocessed="path_to/nnUNet_preprocessed"
 export nnUNet_results="path_to/nnUNet_results"
@@ -55,13 +56,13 @@ DATA_STRUCT:
 
 Plan experiments and preprocess : 
 ```bash
-nnsyn_plan_and_preprocess -d 960 -c 3d_fullres -pl nnUNetPlannerResEncL -p nnUNetResEncUNetLPlans  --preprocessing_input MR --preprocessing_target CT \
+nnsyn_plan_and_preprocess -d 960 -dseg 961 -c 3d_fullres -pl nnUNetPlannerResEncL -p nnUNetResEncUNetLPlans  --preprocessing_input MR --preprocessing_target CT \
 --data_origin_path 'PATH_TO/ORIGIN/synthrad2025_task1_mri2ct_AB'
 ```
 
 Prepare dataset and preprocess for the segmentation branch :
 ```bash
-nnsyn_plan_and_preprocess_seg -d 961 -ds 960 -c 3d_fullres -p nnUNetResEncUNetLPlans --data_origin_path 'PATH_TO/ORIGIN/synthrad2025_task1_mri2ct_AB' --preprocessing_target CT
+nnsyn_plan_and_preprocess_seg -d 960 -dseg 961 -c 3d_fullres -p nnUNetResEncUNetLPlans --data_origin_path 'PATH_TO/ORIGIN/synthrad2025_task1_mri2ct_AB' --preprocessing_target CT
 ```
 
 Train the segmentation branch for perception loss :

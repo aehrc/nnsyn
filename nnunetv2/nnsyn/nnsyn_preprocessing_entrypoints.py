@@ -8,7 +8,7 @@ def nnsyn_plan_and_preprocess_entry():
     parser.add_argument('-c', '--configuration', type=str, default='3d_fullres', help="Configuration to preprocess (default: 3d_fullres)")
     parser.add_argument('-pl', '--planner_class', type=str, default='ExperimentPlanner', help="Experiment planner class (default: nnUNetExperimentPlanner3D_v2)")
     parser.add_argument('-p', '--plan', type=str, default='nnUNetPlans', help="Plan identifier (default: nnUNetPlans)")
-    parser.add_argument('--data_origin_path', type=str, required=True, help="Root path for nnUNet_raw and nnUNet_preprocessed (default: uses environment variables)")
+    # parser.add_argument('--data_origin_path', type=str, required=True, help="Root path for nnUNet_raw and nnUNet_preprocessed (default: uses environment variables)")
     parser.add_argument('--preprocessing_input', type=str, required=True, help="Preprocessing for input data (e.g., CT, MR, synthrad, etc.)")
     parser.add_argument('--preprocessing_target', type=str, required=True, help="Preprocessing for target data (e.g., CT, MR, synthrad, etc.)")
     parser.add_argument('--dataset_name', type=str, default=None, required=False, help="Name for input dataset (e.g., CT, MR, synthrad, etc.)")
@@ -17,7 +17,7 @@ def nnsyn_plan_and_preprocess_entry():
     args = parser.parse_args()
 
     nnsyn_plan_and_preprocess(
-       data_origin_path=args.data_origin_path,
+    #    data_origin_path=args.data_origin_path,
        dataset_id=args.dataset_id,
        dataset_name=args.dataset_name,
        preprocessing_input=args.preprocessing_input,
@@ -31,24 +31,24 @@ def nnsyn_plan_and_preprocess_entry():
 def nnsyn_plan_and_preprocess_seg_entry():
     import argparse
     parser = argparse.ArgumentParser(description="nnUNet preprocessing for nnSyn")
-    parser.add_argument('-d', '--dataset_id', type=int, required=True, help="Dataset ID (will create DatasetXXX_<name> and DatasetXXX+1_<name> in nnUNet_raw and nnUNet_preprocessed)")
-    parser.add_argument('-ds', '--dataset_id_src', type=int, required=True, help="Source Dataset ID (will create DatasetXXX_<name> and DatasetXXX+1_<name> in nnUNet_raw and nnUNet_preprocessed)")
+    parser.add_argument('-d', '--dataset_id_syn', type=int, required=True, help="Original Dataset ID (will create DatasetXXX_<name> and DatasetXXX+1_<name> in nnUNet_raw and nnUNet_preprocessed)")
+    parser.add_argument('-dseg', '--dataset_id_seg', type=int, required=True, help="Segmentation Dataset ID (will create DatasetXXX_<name> and DatasetXXX+1_<name> in nnUNet_raw and nnUNet_preprocessed)")
     parser.add_argument('-c', '--configuration', type=str, default='3d_fullres', help="Configuration to preprocess (default: 3d_fullres)")
     parser.add_argument('-p', '--plan', type=str, default='nnUNetPlans', help="Plan identifier (default: nnUNetPlans)")
-    parser.add_argument('--data_origin_path', type=str, required=True, help="Root path for nnUNet_raw and nnUNet_preprocessed (default: uses environment variables)")
+    # parser.add_argument('--data_origin_path', type=str, required=True, help="Root path for nnUNet_raw and nnUNet_preprocessed (default: uses environment variables)")
     parser.add_argument('--dataset_name', type=str, default=None, required=False, help="Name for input dataset (e.g., CT, MR, synthrad, etc.)")
 
     args = parser.parse_args()
 
-    nnsyn_plan_and_preprocess_seg(data_origin_path='/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/ORIGIN/synthrad2025_task1_mri2ct_AB', 
-                              dataset_id=961, dataset_id_src=960,
-                              configuration='3d_fullres', plan='nnUNetResEncUNetLPlans')
+    # nnsyn_plan_and_preprocess_seg(data_origin_path='/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/ORIGIN/synthrad2025_task1_mri2ct_AB', 
+    #                           dataset_id_syn=961, dataset_id_src=960,
+    #                           configuration='3d_fullres', plan='nnUNetResEncUNetLPlans')
     
     
     nnsyn_plan_and_preprocess_seg(
-       data_origin_path=args.data_origin_path,
-       dataset_id=args.dataset_id,
-       dataset_id_src=args.dataset_id_src,
+    #    data_origin_path=args.data_origin_path,
+       dataset_id_syn=args.dataset_id_syn,
+       dataset_id_seg=args.dataset_id_seg,
        dataset_name=args.dataset_name,
        configuration=args.configuration,
        plan=args.plan,

@@ -24,10 +24,17 @@ conda activate /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/env
 
 cd /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/ref/nnsyn/nnunetv2/analysis/nnUNet_run_scripts/public_scripts
 
+export nnsyn_origin_dataset="/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/nnsyn_origin/synthrad2025_task1_mri2ct_AB"
 export nnUNet_raw="/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/raw"
 export nnUNet_preprocessed="/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/preprocessed"
 export nnUNet_results="/datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results"
 
+nnsyn_plan_and_preprocess -d 960 -c 3d_fullres -pl nnUNetPlannerResEncL -p nnUNetResEncUNetLPlans  --preprocessing_input MR --preprocessing_target CT 
+nnsyn_plan_and_preprocess_seg -d 960 -dseg 961 -c 3d_fullres -p nnUNetResEncUNetLPlans
+git switch nnunetv2
+nnUNetv2_train 961 3d_fullres 0 -tr nnUNetTrainer -p nnUNetResEncUNetLPlans_Dataset960 --c
+git switch main
+nnsyn_train 960 3d_fullres 0 -tr nnUNetTrainer_nnsyn_loss_map -p nnUNetResEncUNetLPlans
 # aim up --host 127.0.0.1 --port 43800 --repo /datasets/work/hb-synthrad2023/work/synthrad2025/bw_workplace/data/nnunet_struct/results/runs_aim --workers=4
 
 
