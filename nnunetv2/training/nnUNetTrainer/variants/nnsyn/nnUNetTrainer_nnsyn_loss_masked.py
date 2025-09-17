@@ -175,5 +175,3 @@ class nnUNetTrainer_nnsyn_loss_masked(nnUNetTrainer_nnsyn):
                                               regions, ignore_label)
 
 
-class nnUNetTrainer_nnsyn_loss_masked_track(nnUNetTrainer_nnsyn_track, nnUNetTrainer_nnsyn_loss_masked):
-    pass
