@@ -88,7 +88,7 @@ class nnUNetTrainer_nnsyn_loss_map(nnUNetTrainer_nnsyn_loss_masked):
 #         loss= SynPerceptionLoss(task=task, region=region, image_loss_weight=self.image_loss_weight, perception_masked=self.perception_masked)
 #         return loss
 
-class nnUNetTrainer_nnsyn_loss_map(nnUNetTrainer_nnsyn_loss_map, nnUNetTrainer_nnsyn_loss_masked_track):
+class nnUNetTrainer_nnsyn_loss_map_track(nnUNetTrainer_nnsyn_loss_map, nnUNetTrainer_nnsyn_loss_masked_track):
     def on_epoch_end(self):
         super().on_epoch_end()
         self.aim_run.track(np.round(self.logger.my_fantastic_logging['train_seg_loss'][-1], decimals=4), \
