@@ -1,23 +1,24 @@
-# Welcome to nnsyn! ( 🏆 1st place in MICCAI-SynthRAD2025 challenge)
+# Welcome to nnsyn! ( 🏆 1st place in MICCAI-SynthRAD2025 MR-CT synthesis challenge)
 This repo holds the code and docker, which won 1st place in MR-to-CT synthesis task in MICCAI SynthRAD2025 challenge. 
-- [SynthRAD2025 Task1 Final Leaderboard](https://synthrad2025.grand-challenge.org/evaluation/test-task-1-mri/leaderboard/) - 🥇 1st place
-- [SynthRAD2025 Task2 Post-challenge Leaderboard](https://synthrad2025.grand-challenge.org/evaluation/post-challenge-task-2-cbct/leaderboard/)
+- [SynthRAD2025 Task1 Final Leaderboard](https://synthrad2025.grand-challenge.org/evaluation/test-task-1-mri/leaderboard/) - 🥇 1st place [15-Aug-2025]
+- [SynthRAD2025 Task2 Post-challenge Leaderboard](https://synthrad2025.grand-challenge.org/evaluation/post-challenge-task-2-cbct/leaderboard/) - 🥇 1st place [post-challenge, 17-Aug-2025]
 
 # ✨ What is nnsyn? Self-configured framework for medical image synthesis
-In this project, we would like to produce a user-friendly, mask-supported, extendable framework for medical image synthesis. We incorporated new CT preprocessing, new network architecture, new loss functions, and new evaluation metrics for image synthesis tasks. 
+In this project, we would like to produce a user-friendly, mask-supported, extendable framework for medical image synthesis. We incorporated new CT preprocessing, new network architectures, new loss functions, and new evaluation metrics for image synthesis tasks. 
 
 # 🌟 Feature highlights:
-- [x] oneliner preprocessing
-- [x] oneliner training (support masked loss, support MedNext)
-- [x] oneliner inference
-- [x] train a dedicated segmentation branch for perception loss
-- [x] optional advanced experiment tracking with AIM
+- [x] Oneliner preprocessing
+- [x] Oneliner training (support masked loss, support MedNext)
+- [x] Oneliner inference
+- [x] Train a dedicated segmentation branch for perception loss
+- [x] Optional advanced experiment tracking with AIM
+- [ ] Support on multimodal imaging inputs (ongoing)
 <!-- - [ ] oneliner evaluation -->
 
 
 # 🚀 Installation:
 ```bash
-git clone git@github.com:bowenxin/nnsyn.git
+git clone git@github.com:bxin3444/nnsyn.git
 cd nnsyn
 pip install -e .
 ```
@@ -33,7 +34,7 @@ export nnUNet_preprocessed="path_to/nnUNet_preprocessed"
 export nnUNet_results="path_to/nnUNet_results"
 ```
 
-Organise your data into ```"PATH_TO/nnsyn_origin_dataset"```. The "MASKS" folder contains the body contour, while the 'LABELS' folder contains segmentation labels.
+Organise your data into ```"nnsyn_origin_dataset"```. The "MASKS" folder contains the body contour, while the 'LABELS' folder contains segmentation labels. An example of dataset.json in [example](documentation/dataset_format.md).
 ```bash
 DATA_STRUCT:
 |-- nnsyn_origin
@@ -46,7 +47,7 @@ DATA_STRUCT:
 |           |-- PATIENT_1.mha
 |       |-- LABELS (optional)
 |           |-- PATIENT_1.mha
-|           |-- dataset.json
+|           |-- dataset.json 
 |-- nnUNet_raw
 |   |-- DatasetXXX_YYY
 |-- nnUNet_preprocessed
@@ -91,10 +92,6 @@ Along with the original nnUNet paper :
     
 # 🤝 Credit
 This project was build upon nnUNet_translation, nnUNet-v2, and TriALS. All awesome stuff. Please do not hesitate to check them out. 
-- nnUNet_translateion: https://github.com/Phyrise/nnUNet_translation
-- nnUNet-v2: https://github.com/MIC-DKFZ/nnUNet
+- nnUNet_translation: https://github.com/Phyrise/nnUNet_translation - [Paper1](https://doi.org/10.1007/978-3-031-73281-2_3) - [Paper2](https://iopscience.iop.org/article/10.1088/1361-6560/adea07)
+- nnUNet-v2: https://github.com/MIC-DKFZ/nnUNet - [Paper](https://doi.org/10.1038/s41592-020-01008-z)
 - TriALS: https://github.com/xmed-lab/TriALS
-
-# 📜 License
-
-# Badges
