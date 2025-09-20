@@ -1,3 +1,10 @@
+[![Static Badge](https://img.shields.io/badge/MICCAI_Challenge-SynthRAD2025-blue)](https://synthrad2025.grand-challenge.org/participants/registration/create/)
+[![Static Badge](https://img.shields.io/badge/huggingface-docker-orange)](https://huggingface.co/aehrc/synthrad2025_docker)
+[![Static Badge](https://img.shields.io/badge/huggingface-demo-orange)](https://huggingface.co/spaces/aehrc/Synthrad2025)
+
+
+
+
 # Welcome to nnsyn! ( 🏆 1st place in MICCAI-SynthRAD2025 MR-CT synthesis challenge)
 This repo holds the code and docker, which won 1st place in MR-to-CT synthesis task in MICCAI SynthRAD2025 challenge. 
 - [SynthRAD2025 Task1 Final Leaderboard](https://synthrad2025.grand-challenge.org/evaluation/test-task-1-mri/leaderboard/) - 🥇 1st place [15-Aug-2025]
@@ -34,7 +41,7 @@ export nnUNet_preprocessed="path_to/nnUNet_preprocessed"
 export nnUNet_results="path_to/nnUNet_results"
 ```
 
-Organise your data into ```"nnsyn_origin_dataset"```. The "MASKS" folder contains the body contour, while the 'LABELS' folder contains segmentation labels. An example of dataset.json in [example](documentation/dataset_format.md).
+Organise your data into ```"nnsyn_origin_dataset"```. The "MASKS" folder contains the body contour, while the 'LABELS' folder contains segmentation labels. An example of dataset.json in [example](documentation/dataset_format.md). Currently, data needs to be convert to .mha. 
 ```bash
 DATA_STRUCT:
 |-- nnsyn_origin
@@ -95,3 +102,8 @@ This project was build upon nnUNet_translation, nnUNet-v2, and TriALS. All aweso
 - nnUNet_translation: https://github.com/Phyrise/nnUNet_translation - [Paper1](https://doi.org/10.1007/978-3-031-73281-2_3) - [Paper2](https://iopscience.iop.org/article/10.1088/1361-6560/adea07)
 - nnUNet-v2: https://github.com/MIC-DKFZ/nnUNet - [Paper](https://doi.org/10.1038/s41592-020-01008-z)
 - TriALS: https://github.com/xmed-lab/TriALS
+
+# ℹ️ Docker & huggingface space
+Please find the instructions to reproduce the docker image for SynthRAD2025 task1 and task2 at https://huggingface.co/aehrc/synthrad2025_docker. 
+
+Also, we provided a demo at huggingface space. Because only cpu resources are available for demo, it would be a bit slow (5 min/volume). On gpu, the inference time is 9 seconds/volume. 
