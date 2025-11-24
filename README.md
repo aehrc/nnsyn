@@ -25,7 +25,7 @@ In this project, we would like to produce a user-friendly, mask-supported, exten
 
 # 🚀 Installation:
 ```bash
-git clone git@github.com:bxin3444/nnsyn.git
+git clone git@github.com:aehrc/nnsyn.git
 cd nnsyn
 pip install -e .
 ```
